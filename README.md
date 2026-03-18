@@ -2,10 +2,7 @@
 
 **Kalvi Connect** is a centralized knowledge-sharing platform exclusively designed for Kalvium students. It serves as a community hub for sharing notes, placement experiences, hackathon opportunities, and career-focused discussions.
 
-## 🚀 Problem it Solves
-Currently, student communication and resource sharing are often fragmented across multiple platforms (WhatsApp, Discord, etc.). Kalvi Connect centralizes these resources into a single, high-performance platform tailored specifically for the Kalvium academic ecosystem.
-
-## 🛠️ Tech Stack
+## 🏗️ Tech Stack
 
 ### Backend
 - **Node.js 20+** & **Express.js** (API Layer)
