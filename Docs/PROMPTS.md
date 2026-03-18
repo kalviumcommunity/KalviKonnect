@@ -45,3 +45,9 @@ This log tracks the interaction between the engineer and AI tools to document ke
 - **Output:** Bucketed list with justifications.
 - **Decision:** Manually moved "Hackathon Application Logic" and "Real-time Chat" to Cut/Post-MVP.
 - **Reason:** Preventing "Feature Creep" early on to ensure a high-quality "Knowledge Hub" experience can be shipped faster.
+
+### **Prompt 8: Complete Prisma Schema Design**
+- **Prompt:** "Generate a 3NF normalized Prisma schema for Kalvi Connect. Extract University and Tag into separate models. Add composite indexes for [universityId, createdAt] on Notes, and denormalize upvote/reply counts. Use @unique for user-level post constraints (one upvote per post)."
+- **Output:** A robust schema with junction tables and strict indexing.
+- **Decision:** Accepted the composite indexing for specific feed performance.
+- **Reason:** Ensuring that we don't just normalized (increasing join latency) but also optimize for the most common campus-specific feed queries we identified in our Persona research.
