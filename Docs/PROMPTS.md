@@ -33,3 +33,15 @@ This log tracks the interaction between the engineer and AI tools to document ke
 - **Output:** A functional `<Router>` with `<Routes>` and placeholder components.
 - **Decision:** Standardized the layout wrapper for all routes.
 - **Reason:** Consistency in the navigation bar/footer is better handled by a shared layout component generated early.
+
+### **Prompt 6: Milestone 2 Strategic Definition**
+- **Prompt:** "Define 3 personas for Kalvi Connect: Student, Mentor, and Campus Manager. Map them to features and write a sharp problem statement that avoids mentioning features."
+- **Output:** Structured personas and a problem statement focused on "Information Luck."
+- **Decision:** Rejected the first weak problem statement provided by AI.
+- **Reason:** Ensuring the problem highlights the "transient nature" of current communication rather than just "needing a site."
+
+### **Prompt 7: Ruthless MVP Scoping**
+- **Prompt:** "Categorize these 15 features into MVP, Post-MVP, and Cut buckets. Be ruthless and cut at least 3 high-effort features."
+- **Output:** Bucketed list with justifications.
+- **Decision:** Manually moved "Hackathon Application Logic" and "Real-time Chat" to Cut/Post-MVP.
+- **Reason:** Preventing "Feature Creep" early on to ensure a high-quality "Knowledge Hub" experience can be shipped faster.
