@@ -51,3 +51,15 @@ This log tracks the interaction between the engineer and AI tools to document ke
 - **Output:** A robust schema with junction tables and strict indexing.
 - **Decision:** Accepted the composite indexing for specific feed performance.
 - **Reason:** Ensuring that we don't just normalized (increasing join latency) but also optimize for the most common campus-specific feed queries we identified in our Persona research.
+
+### **Prompt 9: 3-Layer API Architecture**
+- **Prompt:** "Build a 3-layer MERN backend for Kalvi Connect. Enforce Routes -> Controllers -> Services. Use express-validator, JWT for auth, and roleCheck middleware for RBAC (Student/Mentor/Manager). Ensure all Prisma calls are inside Services and all list endpoints have non-negotiable pagination (max 50)."
+- **Output:** Fully decoupled backend codebase with centralized error handling.
+- **Decision:** Used a `Prisma Singleton` (db.js) to avoid multiple DB connections.
+- **Reason:** Prevents "Max Connection Exceeded" errors in serverless/low-tier DB environments.
+
+### **Prompt 10: Atomic Transactions & Denormalization Sync**
+- **Prompt:** "When upvoting a note, create an Upvote record and increment note.upvoteCount atomically using a Prisma transaction. Handle duplicate upvotes with a 400 error."
+- **Output:** Transactional logic using `prisma.$transaction`.
+- **Decision:** Applied the same logic to `Discussion Threads` (incrementing `replyCount`).
+- **Reason:** To ensure data integrity between the count summaries (fast reads) and the actual records (slow writes).

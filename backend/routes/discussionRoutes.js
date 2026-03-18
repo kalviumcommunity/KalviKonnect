@@ -1,0 +1,11 @@
+const express = require('express');
+const discussionController = require('../controllers/discussionController');
+const auth = require('../middleware/auth');
+
+const router = express.Router();
+
+router.post('/', auth, discussionController.createThread);
+router.get('/', auth, discussionController.getThreads);
+router.post('/:id/reply', auth, discussionController.reply);
+
+module.exports = router;
