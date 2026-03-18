@@ -6,3 +6,245 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum Role {
+  STUDENT
+  MENTOR
+  CAMPUS_MANAGER
+}
+
+model University {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  location  String?
+  users     User[]
+  notes     Note[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id              String             @id @default(uuid())
+  email           String             @unique
+  password        String
+  role            Role               @default(STUDENT)
+  university      University         @relation(fields: [universityId], references: [id])
+  universityId    String
+  lastActiveAt    DateTime           @default(now())
+  
+  // Relations
+  notes           Note[]
+  placements      PlacementPost[]
+  hackathons      Hackathon[]
+  threads         DiscussionThread[]
+  replies         DiscussionReply[]
+  announcements   Announcement[]
+  upvotes         Upvote[]
+  bookmarks       Bookmark[]
+
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([universityId])
+}
+
+model Note {
+  id             String      @id @default(uuid())
+  title          String
+  content        String      @db.Text
+  fileUrl        String?
+  semester       Int
+  
+  // Relations
+  university     University  @relation(fields: [universityId], references: [id])
+  universityId   String
+  author         User        @relation(fields: [authorId], references: [id])
+  authorId       String
+  
+  // Denormalized Summary
+  upvoteCount    Int         @default(0)
+  
+  // Many-to-Many Tags
+  tags           NoteTag[]
+  upvotes        Upvote[]    @relation("NoteUpvotes")
+  bookmarks      Bookmark[]  @relation("NoteBookmarks")
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([universityId, createdAt])
+  @@index([authorId])
+}
+
+model PlacementPost {
+  id             String      @id @default(uuid())
+  company        String
+  role           String
+  content        String      @db.Text
+  rounds         Json?       // Structured round details
+  
+  // Relations
+  author         User        @relation(fields: [authorId], references: [id])
+  authorId       String
+  
+  // Denormalized Summary
+  upvoteCount    Int         @default(0)
+  
+  upvotes        Upvote[]    @relation("PlacementUpvotes")
+  bookmarks      Bookmark[]  @relation("PlacementBookmarks")
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([company])
+  @@index([authorId])
+}
+
+model Hackathon {
+  id             String      @id @default(uuid())
+  title          String
+  description    String      @db.Text
+  deadline       DateTime
+  status         String      @default("OPEN") // OPEN, CLOSED, ONGOING
+  
+  // Relations
+  author         User        @relation(fields: [authorId], references: [id])
+  authorId       String
+  
+  bookmarks      Bookmark[]  @relation("HackathonBookmarks")
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([status])
+  @@index([authorId])
+}
+
+model DiscussionThread {
+  id             String      @id @default(uuid())
+  title          String
+  content        String      @db.Text
+  
+  // Relations
+  author         User        @relation(fields: [authorId], references: [id])
+  authorId       String
+  
+  // Denormalized Summary
+  replyCount     Int         @default(0)
+  
+  replies        DiscussionReply[]
+  tags           ThreadTag[]
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([authorId])
+}
+
+model DiscussionReply {
+  id             String           @id @default(uuid())
+  content        String           @db.Text
+  
+  // Relations
+  thread         DiscussionThread @relation(fields: [threadId], references: [id])
+  threadId       String
+  author         User             @relation(fields: [authorId], references: [id])
+  authorId       String
+  
+  // Denormalized Summary
+  upvoteCount    Int              @default(0)
+  
+  upvotes        Upvote[]         @relation("ReplyUpvotes")
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([threadId])
+  @@index([authorId])
+}
+
+model Announcement {
+  id             String      @id @default(uuid())
+  title          String
+  content        String      @db.Text
+  isSticky       Boolean     @default(false)
+  
+  // Relations
+  author         User        @relation(fields: [authorId], references: [id])
+  authorId       String      // Must be Campus Manager (validated in business logic)
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([isSticky, createdAt])
+}
+
+model Tag {
+  id             String      @id @default(uuid())
+  name           String      @unique
+  notes          NoteTag[]
+  threads        ThreadTag[]
+}
+
+// Junction Tables for Many-to-Many
+model NoteTag {
+  note    Note   @relation(fields: [noteId], references: [id])
+  noteId  String
+  tag     Tag    @relation(fields: [tagId], references: [id])
+  tagId   String
+
+  @@id([noteId, tagId])
+  @@index([tagId])
+}
+
+model ThreadTag {
+  thread    DiscussionThread @relation(fields: [threadId], references: [id])
+  threadId  String
+  tag       Tag              @relation(fields: [tagId], references: [id])
+  tagId     String
+
+  @@id([threadId, tagId])
+  @@index([tagId])
+}
+
+// Upvote Model (Polymorphic-ish via optional relations)
+model Upvote {
+  id             String           @id @default(uuid())
+  user           User             @relation(fields: [userId], references: [id])
+  userId         String
+
+  // Optional relations to different post types
+  note           Note?            @relation("NoteUpvotes", fields: [noteId], references: [id])
+  noteId         String?
+  placement      PlacementPost?   @relation("PlacementUpvotes", fields: [placementId], references: [id])
+  placementId    String?
+  reply          DiscussionReply? @relation("ReplyUpvotes", fields: [replyId], references: [id])
+  replyId        String?
+
+  createdAt      DateTime         @default(now())
+
+  // Ensure one upvote per user per post type
+  @@unique([userId, noteId])
+  @@unique([userId, placementId])
+  @@unique([userId, replyId])
+}
+
+// Bookmark Model
+model Bookmark {
+  id             String           @id @default(uuid())
+  user           User             @relation(fields: [userId], references: [id])
+  userId         String
+
+  note           Note?            @relation("NoteBookmarks", fields: [noteId], references: [id])
+  noteId         String?
+  placement      PlacementPost?   @relation("PlacementBookmarks", fields: [placementId], references: [id])
+  placementId    String?
+  hackathon      Hackathon?       @relation("HackathonBookmarks", fields: [hackathonId], references: [id])
+  hackathonId    String?
+
+  createdAt      DateTime         @default(now())
+
+  @@unique([userId, noteId])
+  @@unique([userId, placementId])
+  @@unique([userId, hackathonId])
+}
