@@ -1,20 +1,47 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const errorHandler = require('./middleware/errorHandler');
+
+const authRoutes = require('./routes/authRoutes');
+const noteRoutes = require('./routes/noteRoutes');
+const placementRoutes = require('./routes/placementRoutes');
+const hackathonRoutes = require('./routes/hackathonRoutes');
+const discussionRoutes = require('./routes/discussionRoutes');
+const upvoteRoutes = require('./routes/upvoteRoutes');
+const bookmarkRoutes = require('./routes/bookmarkRoutes');
+const announcementRoutes = require('./routes/announcementRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173', // Vite default
+  credentials: true
+}));
 app.use(express.json());
 
-// Routes Placeholder
-app.get('/', (req, res) => {
-  res.json({ message: 'Kalvi Connect API is running...' });
+// Routes
+app.use('/auth', authRoutes);
+app.use('/notes', noteRoutes);
+app.use('/placements', placementRoutes);
+app.use('/hackathons', hackathonRoutes);
+app.use('/discussions', discussionRoutes);
+app.use('/upvotes', upvoteRoutes);
+app.use('/bookmarks', bookmarkRoutes);
+app.use('/announcements', announcementRoutes);
+
+// 404 handler
+app.use('*', (req, res, next) => {
+  const AppError = require('./utils/AppError');
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
+
+// Centralized Error Handling
+app.use(errorHandler);
 
 // Start Server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Kalvi Connect API running on port ${PORT}`);
 });
