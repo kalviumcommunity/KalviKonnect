@@ -15,23 +15,41 @@ exports.register = async (userData) => {
   // Hash password
   const hashedPassword = await bcrypt.hash(password, 12);
 
-  const user = await prisma.user.create({
-    data: {
-      email,
-      password: hashedPassword,
-      role,
-      university: { connect: { id: universityId } },
-    },
-    select: {
-      id: true,
-      email: true,
-      role: true,
-      universityId: true,
-    },
-  });
+  // Auto-ensure university exists (to prevent foreign key errors for new setups)
+  try {
+    const university = await prisma.university.upsert({
+      where: { id: universityId || 'univ-default-123' },
+      update: {},
+      create: {
+        id: universityId || 'univ-default-123',
+        name: 'Kalvium University',
+        location: 'Remote'
+      }
+    });
 
-  const token = createToken(user.id, user.role, user.email);
-  return { ...user, token };
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        role,
+        university: { connect: { id: university.id } },
+      },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        universityId: true,
+      },
+    });
+
+    const token = createToken(user.id, user.role, user.email);
+    return { ...user, token };
+  } catch (err) {
+    if (err.code === 'P2002') {
+      throw new AppError('An account with this email already exists', 409);
+    }
+    throw err;
+  }
 };
 
 exports.login = async (email, password) => {
