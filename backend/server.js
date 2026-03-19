@@ -33,7 +33,7 @@ app.use('/bookmarks', bookmarkRoutes);
 app.use('/announcements', announcementRoutes);
 
 // 404 handler
-app.use('*', (req, res, next) => {
+app.use((req, res, next) => {
   const AppError = require('./utils/AppError');
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
@@ -41,7 +41,10 @@ app.use('*', (req, res, next) => {
 // Centralized Error Handling
 app.use(errorHandler);
 
-// Start Server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Kalvi Connect API running on port ${PORT}`);
+});
+
+server.on('error', (e) => {
+  console.error("Server error:", e);
 });

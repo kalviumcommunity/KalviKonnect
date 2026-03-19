@@ -9,7 +9,14 @@ const router = express.Router();
 router.post(
   '/register',
   [
-    body('email').isEmail().withMessage('Enter a valid email'),
+    body('email')
+      .isEmail().withMessage('Enter a valid email')
+      .custom(value => {
+        if (!value.endsWith('@kalvium.community')) {
+          throw new Error('Only @kalvium.community emails are allowed');
+        }
+        return true;
+      }),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
     body('role').isIn(['STUDENT', 'MENTOR', 'CAMPUS_MANAGER']).withMessage('Invalid role'),
     body('universityId').notEmpty().withMessage('University ID is required'),
