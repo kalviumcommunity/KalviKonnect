@@ -2,12 +2,6 @@
 
 **Kalvi Connect** is a centralized knowledge-sharing platform exclusively designed for Kalvium students. It serves as a community hub for sharing notes, placement experiences, hackathon opportunities, and career-focused discussions.
 
-## 🏗️ 3-Layer Backend Architecture (Milestone 4)
-The backend follows a strict **Routes -> Controllers -> Services** pattern to ensure a separation of concerns:
-- **Routes**: Handle path registration and middeleware (Auth, RBAC, Validation).
-- **Controllers**: Extract request data (`req.body`, `req.params`) and send responses.
-- **Services**: Contain all Prisma ORM logic, transactions, and business rules.
-
 ---
 
 ## 🔐 Auth & Security
