@@ -58,21 +58,21 @@ const HackathonsPage = () => {
     <div className="space-y-10 animate-in slide-in-from-top duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center space-x-4">
-          <div className="p-3 bg-blue-600 rounded-2xl shadow-lg shadow-blue-600/30">
+          <div className="p-3 bg-blue-600 rounded-2xl shadow-lg shadow-blue-600/20">
             <Trophy className="w-8 h-8 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-white font-outfit">Exclusive Hackathons</h1>
-            <p className="text-gray-400">Compete, collaborate, and win prizes in Kalvium-only challenges.</p>
+            <h1 className="text-3xl font-bold text-slate-900 font-outfit">Exclusive Hackathons</h1>
+            <p className="text-slate-500">Compete, collaborate, and win prizes in Kalvium-only challenges.</p>
           </div>
         </div>
         
         <div className="relative w-full md:w-80">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
           <input 
             type="text" 
             placeholder="Search events..." 
-            className="w-full pl-12 pr-4 py-3 bg-neutral-800 border border-neutral-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-900 shadow-sm transition-all"
           />
         </div>
       </div>

@@ -5,7 +5,7 @@ const auth = require('../middleware/auth');
 const router = express.Router();
 
 router.post('/', auth, placementController.createPlacement);
-router.get('/', auth, placementController.getPlacements);
-router.get('/:id', auth, placementController.getPlacementById);
+router.get('/', placementController.getPlacements);
+router.get('/:id', placementController.getPlacementById);
 
 module.exports = router;

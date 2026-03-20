@@ -15,6 +15,7 @@ const LoginPage = () => {
   const {
     register,
     handleSubmit,
+    setError: setFormError,
     formState: { errors },
   } = useForm();
 
@@ -25,7 +26,14 @@ const LoginPage = () => {
       await login(data);
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
+      const msg = err.response?.data?.message || 'Invalid credentials. Please try again.';
+      if (msg.toLowerCase().includes('email')) {
+        setFormError('email', { type: 'server', message: msg });
+      } else if (msg.toLowerCase().includes('password') || msg.toLowerCase().includes('credentials')) {
+        setFormError('password', { type: 'server', message: msg });
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }

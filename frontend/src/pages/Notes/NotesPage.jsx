@@ -58,8 +58,8 @@ const NotesPage = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white font-outfit">Learning Resources</h1>
-          <p className="text-gray-400 mt-1">Discover notes and resources shared by fellow Kalvians.</p>
+          <h1 className="text-3xl font-bold text-slate-900 font-outfit">Learning Resources</h1>
+          <p className="text-slate-500 mt-1">Discover notes and resources shared by fellow Kalvians.</p>
         </div>
         <button className="flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-95">
           <Plus className="w-5 h-5 mr-2" />
@@ -69,14 +69,14 @@ const NotesPage = () => {
 
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
           <input 
             type="text" 
             placeholder="Search notes by title, tags..." 
-            className="w-full pl-11 pr-4 py-3 bg-neutral-800 border border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+            className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-900 placeholder-slate-400 transition-all shadow-sm"
           />
         </div>
-        <button className="flex items-center justify-center px-4 py-3 bg-neutral-800 border border-neutral-700 text-gray-300 rounded-xl hover:bg-neutral-700 transition-colors">
+        <button className="flex items-center justify-center px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm font-semibold">
           <Filter className="w-5 h-5 mr-2" />
           Filter
         </button>

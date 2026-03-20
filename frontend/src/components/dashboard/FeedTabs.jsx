@@ -3,13 +3,13 @@ import { Home, Globe } from 'lucide-react';
 
 const FeedTabs = ({ activeTab, onTabChange }) => {
   return (
-    <div className="flex bg-neutral-800 p-1.5 rounded-2xl border border-neutral-700 w-fit">
+    <div className="flex bg-slate-100 p-1 rounded-2xl border border-slate-200 w-fit">
       <button
         onClick={() => onTabChange('college')}
-        className={`flex items-center px-6 py-2.5 rounded-xl font-bold transition-all ${
+        className={`flex items-center px-6 py-2 rounded-xl text-sm font-bold transition-all ${
           activeTab === 'college'
-            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
-            : 'text-gray-400 hover:text-white hover:bg-neutral-700'
+            ? 'bg-white text-blue-600 shadow-sm border border-slate-200'
+            : 'text-slate-500 hover:text-slate-900'
         }`}
       >
         <Home className="w-4 h-4 mr-2" />
@@ -17,10 +17,10 @@ const FeedTabs = ({ activeTab, onTabChange }) => {
       </button>
       <button
         onClick={() => onTabChange('network')}
-        className={`flex items-center px-6 py-2.5 rounded-xl font-bold transition-all ${
+        className={`flex items-center px-6 py-2 rounded-xl text-sm font-bold transition-all ${
           activeTab === 'network'
-            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
-            : 'text-gray-400 hover:text-white hover:bg-neutral-700'
+            ? 'bg-white text-blue-600 shadow-sm border border-slate-200'
+            : 'text-slate-500 hover:text-slate-900'
         }`}
       >
         <Globe className="w-4 h-4 mr-2" />

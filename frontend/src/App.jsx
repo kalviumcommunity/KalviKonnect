@@ -20,7 +20,7 @@ function AppLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-neutral-900 text-white">
+    <div className="flex min-h-screen bg-slate-50 text-slate-900">
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <div className="flex-1 flex flex-col min-w-0">
         <Navbar onMenuToggle={() => setIsSidebarOpen(true)} />

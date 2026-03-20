@@ -56,10 +56,10 @@ const PlacementsPage = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/20 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
         <div className="max-w-xl">
-          <h1 className="text-3xl font-bold text-white font-outfit mb-3">Placement Experiences</h1>
-          <p className="text-gray-400">
+          <h1 className="text-3xl font-bold text-slate-900 font-outfit mb-3">Placement Experiences</h1>
+          <p className="text-slate-600">
             Real interview stories, salary insights, and preparation tips from Kalvium seniors who made it to top tech companies.
           </p>
         </div>
@@ -69,7 +69,7 @@ const PlacementsPage = () => {
         </button>
       </div>
 
-      <div className="flex items-center space-x-2 text-sm text-gray-400 bg-neutral-800/50 p-4 rounded-xl border border-neutral-700">
+      <div className="flex items-center space-x-2 text-sm text-slate-500 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
         <Info className="w-4 h-4 text-blue-500" />
         <p>Filter by company or role to find specific insights for your target goal.</p>
       </div>

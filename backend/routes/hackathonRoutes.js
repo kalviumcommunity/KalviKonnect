@@ -5,7 +5,7 @@ const auth = require('../middleware/auth');
 const router = express.Router();
 
 router.post('/', auth, hackathonController.createHackathon);
-router.get('/', auth, hackathonController.getHackathons);
+router.get('/', hackathonController.getHackathons);
 router.patch('/:id/status', auth, hackathonController.updateStatus);
 router.post('/:id/apply', auth, hackathonController.applyToHackathon);
 
