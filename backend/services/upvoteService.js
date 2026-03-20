@@ -10,19 +10,7 @@ exports.upvote = async (userId, target) => {
 
   // Use a transaction
   return await prisma.$transaction(async (tx) => {
-    // 1. Check if user already upvoted
-    const existing = await tx.upvote.findFirst({
-      where: {
-        userId,
-        noteId: noteId || null,
-        placementId: placementId || null,
-        replyId: replyId || null,
-      },
-    });
-
-    if (existing) {
-      throw new AppError('You have already upvoted this post', 400);
-    }
+    // 1. Removed manual check to let Prisma P2002 throw
 
     // 2. Create the upvote
     const upvote = await tx.upvote.create({

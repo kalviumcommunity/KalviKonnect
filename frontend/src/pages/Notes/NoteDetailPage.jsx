@@ -116,7 +116,7 @@ const NoteDetailPage = () => {
           </div>
 
           <div className="prose prose-invert max-w-none text-gray-300 leading-relaxed text-lg">
-            {note.description.split('\n').map((para, i) => (
+            {(note.content || note.description || '').split('\n').map((para, i) => (
               <p key={i} className="mb-4">{para}</p>
             ))}
           </div>

@@ -14,6 +14,7 @@ const RegisterPage = () => {
   const {
     register,
     handleSubmit,
+    setError: setFormError,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -30,7 +31,18 @@ const RegisterPage = () => {
       navigate('/');
     } catch (err) {
       console.error('Registration error:', err.response?.data);
-      setError(err.response?.data?.message || 'Registration failed. Check if university exists.');
+      const msg = err.response?.data?.message || 'Registration failed. Check if university exists.';
+      if (msg.toLowerCase().includes('email')) {
+        setFormError('email', { type: 'server', message: msg });
+      } else if (msg.toLowerCase().includes('password')) {
+        setFormError('password', { type: 'server', message: msg });
+      } else if (msg.toLowerCase().includes('role')) {
+        setFormError('role', { type: 'server', message: msg });
+      } else if (msg.toLowerCase().includes('name')) {
+        setFormError('name', { type: 'server', message: msg });
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -98,7 +110,7 @@ const RegisterPage = () => {
               placeholder="Min. 6 characters"
               {...register('password', { 
                 required: 'Password is required',
-                minLength: { value: 6, message: 'Password must be at least 6 characters' }
+                minLength: { value: 8, message: 'Password must be at least 8 characters' }
               })}
               className={`w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-kalvium/20 focus:border-kalvium text-slate-900 placeholder-slate-400 transition-all ${errors.password ? 'border-rose-500' : ''}`}
             />

@@ -9,6 +9,7 @@ const router = express.Router();
 router.post(
   '/register',
   [
+    body('name').notEmpty().withMessage('Name is required'),
     body('email')
       .isEmail().withMessage('Enter a valid email')
       .custom(value => {
@@ -17,7 +18,7 @@ router.post(
         }
         return true;
       }),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long'),
     body('role').isIn(['STUDENT', 'MENTOR', 'CAMPUS_MANAGER']).withMessage('Invalid role'),
     body('universityId').notEmpty().withMessage('University ID is required'),
     validate,

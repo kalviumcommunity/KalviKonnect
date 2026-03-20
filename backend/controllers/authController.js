@@ -1,11 +1,13 @@
 const authService = require('../services/authService');
+const userSerializer = require('../utils/userSerializer');
 
 exports.register = async (req, res, next) => {
   try {
     const user = await authService.register(req.body);
+    const { token, ...userData } = user;
     res.status(201).json({
       error: false,
-      data: user,
+      data: { ...userSerializer(userData), token },
     });
   } catch (err) {
     next(err);
@@ -15,9 +17,10 @@ exports.register = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   try {
     const user = await authService.login(req.body.email, req.body.password);
+    const { token, ...userData } = user;
     res.status(200).json({
       error: false,
-      data: user,
+      data: { ...userSerializer(userData), token },
     });
   } catch (err) {
     next(err);
@@ -26,10 +29,9 @@ exports.login = async (req, res, next) => {
 
 exports.getMe = async (req, res, next) => {
   try {
-    const { password, ...userSafe } = req.user;
     res.status(200).json({
       error: false,
-      data: userSafe,
+      data: userSerializer(req.user),
     });
   } catch (err) {
     next(err);

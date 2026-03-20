@@ -50,27 +50,27 @@ const AnnouncementsPage = () => {
     return (
       <div className="space-y-6">
         {data.map(announcement => (
-          <div key={announcement._id} className="bg-neutral-800 border border-neutral-700 rounded-2xl p-6 shadow-lg hover:border-neutral-600 transition-colors">
+          <div key={announcement._id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:border-slate-300 transition-colors">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-500/10 rounded-lg">
-                  <Bell className="w-5 h-5 text-blue-500" />
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <Bell className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white leading-tight">{announcement.title}</h3>
-                  <div className="flex items-center text-xs text-gray-400 mt-1">
+                  <h3 className="text-xl font-bold text-slate-900 leading-tight">{announcement.title}</h3>
+                  <div className="flex items-center text-xs text-slate-400 mt-1">
                     <Clock className="w-3.5 h-3.5 mr-1" />
                     {new Date(announcement.createdAt).toLocaleDateString()}
                   </div>
                 </div>
               </div>
               {announcement.isPriority && (
-                <span className="px-2 py-1 bg-red-500/10 text-red-500 text-[10px] font-bold uppercase rounded border border-red-500/20">
+                <span className="px-2 py-1 bg-red-50 text-red-600 text-[10px] font-bold uppercase rounded border border-red-100 shadow-sm">
                   Priority
                 </span>
               )}
             </div>
-            <p className="text-gray-400 leading-relaxed">
+            <p className="text-slate-600 leading-relaxed">
               {announcement.content}
             </p>
           </div>
@@ -83,8 +83,8 @@ const AnnouncementsPage = () => {
     <div className="max-w-3xl mx-auto space-y-8 animate-in zoom-in-95 duration-500">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <Megaphone className="w-8 h-8 text-blue-500" />
-          <h1 className="text-3xl font-bold text-white font-outfit">Announcements</h1>
+          <Megaphone className="w-8 h-8 text-blue-600" />
+          <h1 className="text-3xl font-bold text-slate-900 font-outfit">Announcements</h1>
         </div>
         
         {isManager && (
@@ -95,11 +95,11 @@ const AnnouncementsPage = () => {
         )}
       </div>
 
-      <div className="bg-blue-600/10 border border-blue-500/20 rounded-2xl p-4 flex items-start space-x-4">
+      <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-start space-x-4">
         <div className="mt-1">
-          <Info className="w-5 h-5 text-blue-500" />
+          <Info className="w-5 h-5 text-blue-600" />
         </div>
-        <p className="text-sm text-blue-200/80 leading-relaxed">
+        <p className="text-sm text-slate-600 leading-relaxed">
           Stay updated with the latest news, events, and important notices from the Kalvium campus management team.
         </p>
       </div>

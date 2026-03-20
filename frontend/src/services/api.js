@@ -21,14 +21,18 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Handle 401
+// Response Interceptor: Handle 401 and let 403 pass to UI
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+    if (error.response) {
+      if (error.response.status === 401) {
+        // Log out immediately
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
+      // 403 is intentionally not caught here so individual pages can show toasts/errors
     }
     return Promise.reject(error);
   }

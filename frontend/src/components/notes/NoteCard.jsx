@@ -3,7 +3,9 @@ import { ThumbsUp, User, Tag, Calendar, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const NoteCard = ({ note }) => {
-  const { _id, title, description, tags, author, upvotes, createdAt } = note;
+  const { id, _id, title, content, description, tags, author, upvotes, createdAt } = note;
+  const noteId = id || _id;
+  const displayDescription = content || description || '';
 
   return (
     <div className="bg-neutral-800 border border-neutral-700 rounded-2xl p-5 hover:border-blue-500/50 transition-all group flex flex-col h-full shadow-lg hover:shadow-blue-500/5">
@@ -27,7 +29,7 @@ const NoteCard = ({ note }) => {
       </h3>
       
       <p className="text-gray-400 text-sm mb-6 line-clamp-3 flex-grow">
-        {description}
+        {displayDescription}
       </p>
 
       <div className="pt-4 border-t border-neutral-700 mt-auto">
@@ -45,7 +47,7 @@ const NoteCard = ({ note }) => {
               <span className="text-sm">{upvotes || 0}</span>
             </div>
             <Link 
-              to={`/notes/${_id}`}
+              to={`/notes/${noteId}`}
               className="p-1.5 hover:bg-neutral-700 rounded-lg text-gray-400 hover:text-white transition-colors"
             >
               <ExternalLink className="w-4 h-4" />

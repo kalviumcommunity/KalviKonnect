@@ -3,26 +3,26 @@ import { Send, Image, Link2, Smile } from 'lucide-react';
 
 const PostForm = () => {
   return (
-    <div className="bg-neutral-800 border border-neutral-700 rounded-3xl p-6 shadow-xl mb-8">
+    <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm mb-8">
       <div className="flex items-start space-x-4">
-        <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-lg flex-shrink-0 border border-slate-200">
           U
         </div>
         <div className="flex-1">
           <textarea
             placeholder="What's happening in your college?"
-            className="w-full bg-transparent border-none focus:ring-0 text-white text-lg placeholder-gray-500 resize-none h-24 pt-2"
+            className="w-full bg-transparent border-none focus:ring-0 text-slate-900 text-lg placeholder-slate-400 resize-none h-24 pt-2"
           ></textarea>
           
-          <div className="flex items-center justify-between pt-4 border-t border-neutral-700">
+          <div className="flex items-center justify-between pt-4 border-t border-slate-100">
             <div className="flex items-center space-x-4">
-              <button className="text-gray-400 hover:text-blue-500 transition-colors p-2 hover:bg-blue-500/10 rounded-xl">
+              <button className="text-slate-400 hover:text-blue-600 transition-colors p-2 hover:bg-slate-50 rounded-xl">
                 <Image className="w-5 h-5" />
               </button>
-              <button className="text-gray-400 hover:text-blue-500 transition-colors p-2 hover:bg-blue-500/10 rounded-xl">
+              <button className="text-slate-400 hover:text-blue-600 transition-colors p-2 hover:bg-slate-50 rounded-xl">
                 <Link2 className="w-5 h-5" />
               </button>
-              <button className="text-gray-400 hover:text-blue-500 transition-colors p-2 hover:bg-blue-500/10 rounded-xl">
+              <button className="text-slate-400 hover:text-blue-600 transition-colors p-2 hover:bg-slate-50 rounded-xl">
                 <Smile className="w-5 h-5" />
               </button>
             </div>
