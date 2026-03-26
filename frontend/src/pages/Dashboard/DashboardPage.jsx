@@ -6,6 +6,7 @@ import SkeletonCard from '../../components/shared/SkeletonCard';
 import ErrorBanner from '../../components/shared/ErrorBanner';
 import EmptyState from '../../components/shared/EmptyState';
 import { useAuth } from '../../hooks/useAuth';
+import { getDashboardFeed } from '../../services/feed.service';
 import { Search, TrendingUp, Users, Calendar, BookOpen, Trophy, Megaphone, MessageSquare, LayoutDashboard } from 'lucide-react';
 
 const DashboardPage = () => {
@@ -19,26 +20,8 @@ const DashboardPage = () => {
     setStatus('loading');
     setError(null);
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      const mockPosts = [
-        {
-          _id: '1',
-          author: { name: 'Aryan Sharma' },
-          content: 'Just finished the Milestone 4 backend! The JWT authentication was tricky but satisfying to implement. #KalviKonnect #Learning',
-          createdAt: new Date().toISOString(),
-          likes: 12,
-          comments: [1, 2]
-        },
-        {
-          _id: '2',
-          author: { name: 'Sneha Reddy' },
-          content: 'Does anyone have tips for the upcoming Hackathon? Specifically looking for UI/UX best practices.',
-          createdAt: new Date(Date.now() - 3600000).toISOString(),
-          likes: 8,
-          comments: [1]
-        }
-      ];
-      setPosts(mockPosts);
+      const response = await getDashboardFeed(1);
+      setPosts(response.data.feed);
       setStatus('success');
     } catch (err) {
       setError('Failed to load feed');

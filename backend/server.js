@@ -11,6 +11,7 @@ const discussionRoutes = require('./routes/discussionRoutes');
 const upvoteRoutes = require('./routes/upvoteRoutes');
 const bookmarkRoutes = require('./routes/bookmarkRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
+const feedRoutes = require('./routes/feedRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -31,6 +32,7 @@ app.use('/discussions', discussionRoutes);
 app.use('/upvotes', upvoteRoutes);
 app.use('/bookmarks', bookmarkRoutes);
 app.use('/announcements', announcementRoutes);
+app.use('/feed', feedRoutes);
 
 // 404 handler
 app.use((req, res, next) => {

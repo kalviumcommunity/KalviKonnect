@@ -25,35 +25,44 @@ exports.createNote = async (noteData, authorId) => {
 
 exports.getNotes = async (query) => {
   const { page = 1, limit = 10, tag, universityId, sort = 'latest' } = query;
-  const skip = (parseInt(page) - 1) * Math.min(parseInt(limit), 50);
+  const parsedPage = parseInt(page);
+  const parsedLimit = Math.min(parseInt(limit), 50);
 
-  const where = {};
-  if (universityId) where.universityId = universityId;
+  // Bug: Fetching all notes from the database and doing JS in-memory filtering.
+  // This causes performance issues and high memory usage on large tables.
+  const allNotes = await prisma.note.findMany({
+    include: {
+      tags: { include: { tag: true } },
+      author: { select: { id: true, email: true, role: true } },
+    },
+  });
+
+  // In-memory Filter
+  let filteredNotes = allNotes;
+  if (universityId) {
+    filteredNotes = filteredNotes.filter(n => n.universityId === universityId);
+  }
   if (tag) {
-    where.tags = {
-      some: {
-        tag: { name: tag },
-      },
-    };
+    filteredNotes = filteredNotes.filter(n => 
+      n.tags.some(t => t.tag.name === tag)
+    );
   }
 
-  const orderBy = sort === 'oldest' ? { createdAt: 'asc' } : { createdAt: 'desc' };
+  // In-memory Sort
+  filteredNotes.sort((a, b) => {
+    if (sort === 'oldest') {
+      return new Date(a.createdAt) - new Date(b.createdAt);
+    }
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
 
-  const [notes, total] = await Promise.all([
-    prisma.note.findMany({
-      where,
-      orderBy,
-      skip,
-      take: Math.min(parseInt(limit), 50),
-      include: {
-        tags: { include: { tag: true } },
-        author: { select: { id: true, email: true, role: true } },
-      },
-    }),
-    prisma.note.count({ where }),
-  ]);
+  const total = filteredNotes.length;
+  
+  // In-memory Pagination
+  const skip = (parsedPage - 1) * parsedLimit;
+  const paginatedNotes = filteredNotes.slice(skip, skip + parsedLimit);
 
-  return { notes, total, page: parseInt(page), limit: parseInt(limit) };
+  return { notes: paginatedNotes, total, page: parsedPage, limit: parsedLimit };
 };
 
 exports.getNoteById = async (id) => {
