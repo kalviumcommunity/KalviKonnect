@@ -18,7 +18,7 @@ exports.createNote = async (noteData, authorId) => {
     },
     include: {
       tags: { include: { tag: true } },
-      author: { select: { id: true, email: true, role: true } },
+      author: true,
     },
   });
 };
@@ -33,7 +33,7 @@ exports.getNotes = async (query) => {
   const allNotes = await prisma.note.findMany({
     include: {
       tags: { include: { tag: true } },
-      author: { select: { id: true, email: true, role: true } },
+      author: true,
     },
   });
 
@@ -70,7 +70,7 @@ exports.getNoteById = async (id) => {
     where: { id },
     include: {
       tags: { include: { tag: true } },
-      author: { select: { id: true, email: true, role: true } },
+      author: true,
     },
   });
 
