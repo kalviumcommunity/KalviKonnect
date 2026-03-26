@@ -13,7 +13,7 @@ exports.createPlacement = async (placementData, authorId) => {
       author: { connect: { id: authorId } },
     },
     include: {
-      author: { select: { id: true, email: true, role: true } },
+      author: true, // Bug: Including all author fields including password and massive relations
     },
   });
 };
@@ -32,7 +32,7 @@ exports.getPlacements = async (query) => {
       where,
       orderBy, skip, take: Math.min(parseInt(limit), 50),
       include: {
-        author: { select: { id: true, email: true, role: true } },
+        author: true, // Bug: Including all author fields including password
       },
     }),
     prisma.placementPost.count({ where }),
@@ -45,7 +45,7 @@ exports.getPlacementById = async (id) => {
   const placement = await prisma.placementPost.findUnique({
     where: { id },
     include: {
-      author: { select: { id: true, email: true, role: true } },
+      author: true, // Bug: Including all author fields
     },
   });
 

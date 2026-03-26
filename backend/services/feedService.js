@@ -16,7 +16,7 @@ exports.getDashboardFeed = async (universityId, page = 1) => {
     },
     take: limit,
     include: {
-      author: { select: { id: true, name: true, role: true } }
+      author: true
     }
   });
 
@@ -32,7 +32,7 @@ exports.getDashboardFeed = async (universityId, page = 1) => {
     },
     take: limit,
     include: {
-      author: { select: { id: true, name: true, role: true } }
+      author: true
     }
   });
 
