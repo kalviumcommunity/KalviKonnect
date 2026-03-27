@@ -15,22 +15,41 @@ exports.createThread = async (data, authorId) => {
 
 exports.getThreads = async (query) => {
   const { page = 1, limit = 10, tag } = query;
-  const skip = (parseInt(page)-1) * Math.min(parseInt(limit), 50);
+  const parsedPage = Math.max(parseInt(page), 1);
+  const parsedLimit = Math.min(Math.max(parseInt(limit), 1), 50);
+  const skip = (parsedPage - 1) * parsedLimit;
 
   const where = {};
   if (tag) {
     where.tags = { some: { tag: { name: tag } } };
   }
 
-  const [threads, total] = await Promise.all([
+  const [threads, total] = await prisma.$transaction([
     prisma.discussionThread.findMany({
-      where, skip, take: Math.min(parseInt(limit), 50),
-      include: { author: { select: { id: true, email: true, role: true } } }
+      where, 
+      skip, 
+      take: parsedLimit,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        replyCount: true,
+        createdAt: true,
+        author: { select: { id: true, name: true } },
+        tags: { select: { tag: { select: { name: true } } } }
+      }
     }),
     prisma.discussionThread.count({ where })
   ]);
 
-  return { threads, total, page: parseInt(page), limit: parseInt(limit) };
+  return { 
+    threads, 
+    total, 
+    page: parsedPage, 
+    limit: parsedLimit,
+    totalPages: Math.ceil(total / parsedLimit),
+    hasNextPage: parsedPage < Math.ceil(total / parsedLimit)
+  };
 };
 
 exports.replyToThread = async (threadId, content, authorId) => {

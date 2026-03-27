@@ -19,26 +19,48 @@ exports.createPlacement = async (placementData, authorId) => {
 };
 
 exports.getPlacements = async (query) => {
-  const { page = 1, limit = 10, company, sort = 'latest' } = query;
-  const skip = (parseInt(page) - 1) * Math.min(parseInt(limit), 50);
+  const { page = 1, limit = 10, company, sort = 'latest' } = query || {};
+  const parsedPage = Math.max(parseInt(page), 1);
+  const parsedLimit = Math.min(Math.max(parseInt(limit), 1), 50);
+  const skip = (parsedPage - 1) * parsedLimit;
 
   const where = {};
   if (company) where.company = { contains: company, mode: 'insensitive' };
 
   const orderBy = sort === 'oldest' ? { createdAt: 'asc' } : { createdAt: 'desc' };
 
-  const [placements, total] = await Promise.all([
+  const [placements, total] = await prisma.$transaction([
     prisma.placementPost.findMany({
       where,
-      orderBy, skip, take: Math.min(parseInt(limit), 50),
-      include: {
-        author: true, // Bug: Including all author fields including password
-      },
+      orderBy,
+      skip,
+      take: parsedLimit,
+      select: {
+        id: true,
+        company: true,
+        role: true,
+        createdAt: true,
+        upvoteCount: true,
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true // needed for contact maybe? but user said "only { id, name }"
+          }
+        }
+      }
     }),
     prisma.placementPost.count({ where }),
   ]);
 
-  return { placements, total, page: parseInt(page), limit: parseInt(limit) };
+  return { 
+    placements, 
+    total, 
+    page: parsedPage, 
+    limit: parsedLimit,
+    totalPages: Math.ceil(total / parsedLimit),
+    hasNextPage: parsedPage < Math.ceil(total / parsedLimit)
+  };
 };
 
 exports.getPlacementById = async (id) => {

@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const compression = require('compression');
 const errorHandler = require('./middleware/errorHandler');
 
 const authRoutes = require('./routes/authRoutes');
@@ -14,14 +15,16 @@ const announcementRoutes = require('./routes/announcementRoutes');
 const feedRoutes = require('./routes/feedRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 // Middleware
+app.use(compression());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173', // Vite default
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true
 }));
 app.use(express.json());
+
+const PORT = process.env.PORT || 5001;
 
 // Routes
 app.use('/auth', authRoutes);

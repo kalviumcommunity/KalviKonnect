@@ -21,9 +21,14 @@ export const useNotes = () => {
       // or similar. Adjusting to a likely shape.
       setState({
         status: 'success',
-        data: result.data || result.notes || [],
+        data: result.notes || [],
         error: null,
-        pagination: result.pagination || { page: 1, totalPages: 1 }
+        pagination: {
+          page: result.page,
+          totalPages: result.totalPages,
+          total: result.total,
+          hasNextPage: result.hasNextPage
+        }
       });
     } catch (error) {
       const message = error.response?.data?.message || 'Failed to fetch notes';

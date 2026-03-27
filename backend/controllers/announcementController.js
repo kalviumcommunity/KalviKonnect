@@ -11,8 +11,8 @@ exports.createAnnouncement = async (req, res, next) => {
 
 exports.getAnnouncements = async (req, res, next) => {
   try {
-    const data = await announcementService.getAnnouncements();
-    res.status(200).json({ error: false, data });
+    const data = await announcementService.getAnnouncements(req.query);
+    res.status(200).json({ status: 'success', data });
   } catch (err) {
     next(err);
   }
