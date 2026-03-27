@@ -8,8 +8,8 @@ const compression = require('compression');
 const errorHandler = require('./middleware/errorHandler');
 
 const authRoutes = require('./routes/authRoutes');
-const noteRoutes = require('./routes/noteRoutes');
-const placementRoutes = require('./routes/placementRoutes');
+const noteRoutes = require('./routes/notes.routes');
+const placementRoutes = require('./routes/placements.routes');
 const hackathonRoutes = require('./routes/hackathonRoutes');
 const discussionRoutes = require('./routes/discussionRoutes');
 const upvoteRoutes = require('./routes/upvoteRoutes');

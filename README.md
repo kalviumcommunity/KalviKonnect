@@ -48,3 +48,20 @@ npm run dev
 - [API Documentation](file:///Users/sriman/Developer/Projects/forge%20program%20/kalvikonnect/KalviKonnect/Docs/API_DOCS.md)
 - [Auth Flow & RBAC](file:///Users/sriman/Developer/Projects/forge%20program%20/kalvikonnect/KalviKonnect/Docs/AUTH_FLOW.md)
 - [Security implementation](file:///Users/sriman/Developer/Projects/forge%20program%20/kalvikonnect/KalviKonnect/Docs/SECURITY_NOTES.md)
+
+## Running Costs
+
+KalviKonnect uses OpenRouter with openai/gpt-4o-mini for AI features.
+Pricing: ~$0.15 per million input tokens, ~$0.60 per million output tokens.
+
+Per-Request Estimate (Note Summarizer):
+- Average input: ~800 tokens (prompt + note content)
+- Average output: ~150 tokens
+- Cost per request: (800/1,000,000 x $0.15) + (150/1,000,000 x $0.60) = ~$0.00012
+
+Monthly Cost at Scale:
+- 200 students x 5 summaries/week = ~4,000 requests/month = ~$0.48
+- 200 students x 20 summaries/week = ~16,000 requests/month = ~$1.92
+- 500 students x 20 summaries/week = ~40,000 requests/month = ~$4.80
+
+Token usage is logged on every AI call in Render logs under event: ai_token_usage.

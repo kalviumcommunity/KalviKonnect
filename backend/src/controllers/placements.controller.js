@@ -1,4 +1,14 @@
-const placementService = require('../services/placementService');
+const placementService = require('../services/placements.service');
+
+exports.structurePlacement = async (req, res, next) => {
+  try {
+    const result = await placementService.getStructureForPlacement(req.params.id);
+    if (!result.success) return res.status(503).json(result);
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
 
 exports.createPlacement = async (req, res, next) => {
   try {
