@@ -1,4 +1,14 @@
-const noteService = require('../services/noteService');
+const noteService = require('../services/notes.service');
+
+exports.summarizeNote = async (req, res, next) => {
+  try {
+    const result = await noteService.getSummaryForNote(req.params.id);
+    if (!result.success) return res.status(503).json(result);
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
 
 exports.createNote = async (req, res, next) => {
   try {

@@ -1,5 +1,23 @@
 const prisma = require('../db');
 const AppError = require('../utils/AppError');
+const { generateResponse } = require("./aiService");
+const { buildPlacementStructurePrompt, parseAIJson } = require("../utils/promptBuilder");
+
+exports.getStructureForPlacement = async (placementId) => {
+  const placement = await prisma.placementPost.findUnique({
+    where:  { id: placementId },
+    select: { id: true, company: true, role: true, rounds: true, questions: true, tips: true },
+  });
+  if (!placement) throw Object.assign(new Error("Placement not found"), { statusCode: 404 });
+
+  const { systemMsg, userPrompt } = buildPlacementStructurePrompt(placement);
+  const aiResult = await generateResponse(userPrompt, systemMsg);
+
+  if (!aiResult.success) return aiResult;
+
+  const parsed = parseAIJson(aiResult.data.result);
+  return parsed.success ? { success: true, data: parsed.data } : parsed;
+};
 
 exports.createPlacement = async (placementData, authorId) => {
   const { company, role, content, rounds } = placementData;

@@ -5,6 +5,7 @@ const REQUIRED_ENV_VARS = [
   "PORT",
   "NODE_ENV",
   "CORS_ORIGIN",
+  "OPENROUTER_API_KEY",
 ];
 
 function validateEnv() {

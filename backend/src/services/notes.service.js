@@ -1,5 +1,23 @@
 const prisma = require('../db');
 const AppError = require('../utils/AppError');
+const { generateResponse } = require("./aiService");
+const { buildNoteSummaryPrompt, parseAIJson } = require("../utils/promptBuilder");
+
+exports.getSummaryForNote = async (noteId) => {
+  const note = await prisma.note.findUnique({
+    where:  { id: noteId },
+    select: { id: true, title: true, content: true },
+  });
+  if (!note) throw Object.assign(new Error("Note not found"), { statusCode: 404 });
+
+  const { systemMsg, userPrompt } = buildNoteSummaryPrompt(note);
+  const aiResult = await generateResponse(userPrompt, systemMsg);
+
+  if (!aiResult.success) return aiResult;
+
+  const parsed = parseAIJson(aiResult.data.result);
+  return parsed.success ? { success: true, data: parsed.data } : parsed;
+};
 
 exports.createNote = async (noteData, authorId) => {
   const { title, content, semester, universityId, tags } = noteData;
