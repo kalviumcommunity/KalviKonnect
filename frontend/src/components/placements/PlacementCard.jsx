@@ -49,4 +49,4 @@ const PlacementCard = ({ placement }) => {
   );
 };
 
-export default PlacementCard;
+export default React.memo(PlacementCard);

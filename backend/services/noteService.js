@@ -25,44 +25,59 @@ exports.createNote = async (noteData, authorId) => {
 
 exports.getNotes = async (query) => {
   const { page = 1, limit = 10, tag, universityId, sort = 'latest' } = query;
-  const parsedPage = parseInt(page);
-  const parsedLimit = Math.min(parseInt(limit), 50);
+  const parsedPage = Math.max(parseInt(page), 1);
+  const parsedLimit = Math.min(Math.max(parseInt(limit), 1), 50);
+  const skip = (parsedPage - 1) * parsedLimit;
 
-  // Bug: Fetching all notes from the database and doing JS in-memory filtering.
-  // This causes performance issues and high memory usage on large tables.
-  const allNotes = await prisma.note.findMany({
-    include: {
-      tags: { include: { tag: true } },
-      author: true,
-    },
-  });
-
-  // In-memory Filter
-  let filteredNotes = allNotes;
+  const where = {};
   if (universityId) {
-    filteredNotes = filteredNotes.filter(n => n.universityId === universityId);
+    where.universityId = universityId;
   }
   if (tag) {
-    filteredNotes = filteredNotes.filter(n => 
-      n.tags.some(t => t.tag.name === tag)
-    );
+    where.tags = {
+      some: {
+        tag: {
+          name: tag
+        }
+      }
+    };
   }
 
-  // In-memory Sort
-  filteredNotes.sort((a, b) => {
-    if (sort === 'oldest') {
-      return new Date(a.createdAt) - new Date(b.createdAt);
-    }
-    return new Date(b.createdAt) - new Date(a.createdAt);
-  });
+  const orderBy = sort === 'oldest' ? { createdAt: 'asc' } : { createdAt: 'desc' };
 
-  const total = filteredNotes.length;
-  
-  // In-memory Pagination
-  const skip = (parsedPage - 1) * parsedLimit;
-  const paginatedNotes = filteredNotes.slice(skip, skip + parsedLimit);
+  const [notes, total] = await prisma.$transaction([
+    prisma.note.findMany({
+      where,
+      orderBy,
+      skip,
+      take: parsedLimit,
+      select: {
+        id: true,
+        title: true,
+        semester: true,
+        upvoteCount: true,
+        visibility: true,
+        createdAt: true,
+        author: { select: { id: true, name: true } },
+        university: { select: { name: true } },
+        tags: {
+          select: {
+            tag: { select: { id: true, name: true } }
+          }
+        }
+      }
+    }),
+    prisma.note.count({ where })
+  ]);
 
-  return { notes: paginatedNotes, total, page: parsedPage, limit: parsedLimit };
+  return { 
+    notes, 
+    total, 
+    page: parsedPage, 
+    limit: parsedLimit,
+    totalPages: Math.ceil(total / parsedLimit),
+    hasNextPage: parsedPage < Math.ceil(total / parsedLimit)
+  };
 };
 
 exports.getNoteById = async (id) => {

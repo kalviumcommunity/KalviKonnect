@@ -16,22 +16,41 @@ exports.createHackathon = async (hackathonData, authorId) => {
 
 exports.getHackathons = async (query) => {
   const { page = 1, limit = 10, status, sort = 'latest' } = query;
-  const skip = (parseInt(page) - 1) * Math.min(parseInt(limit), 50);
+  const parsedPage = Math.max(parseInt(page), 1);
+  const parsedLimit = Math.min(Math.max(parseInt(limit), 1), 50);
+  const skip = (parsedPage - 1) * parsedLimit;
 
   const where = {};
   if (status) where.status = status.toUpperCase();
 
   const orderBy = sort === 'oldest' ? { createdAt: 'asc' } : { createdAt: 'desc' };
 
-  const [hackathons, total] = await Promise.all([
+  const [hackathons, total] = await prisma.$transaction([
     prisma.hackathon.findMany({
-      where, orderBy, skip, take: Math.min(parseInt(limit), 50),
-      include: { author: { select: { id: true, email: true, role: true } } },
+      where, 
+      orderBy, 
+      skip, 
+      take: parsedLimit,
+      select: {
+        id: true,
+        title: true,
+        status: true,
+        deadline: true,
+        createdAt: true,
+        author: { select: { id: true, name: true } }
+      }
     }),
     prisma.hackathon.count({ where }),
   ]);
 
-  return { hackathons, total, page: parseInt(page), limit: parseInt(limit) };
+  return { 
+    hackathons, 
+    total, 
+    page: parsedPage, 
+    limit: parsedLimit,
+    totalPages: Math.ceil(total / parsedLimit),
+    hasNextPage: parsedPage < Math.ceil(total / parsedLimit)
+  };
 };
 
 exports.updateStatus = async (id, status, userId) => {

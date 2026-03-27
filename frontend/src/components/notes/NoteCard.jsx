@@ -59,4 +59,4 @@ const NoteCard = ({ note }) => {
   );
 };
 
-export default NoteCard;
+export default React.memo(NoteCard);

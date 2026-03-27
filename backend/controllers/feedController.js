@@ -8,14 +8,13 @@ exports.getDashboardFeed = async (req, res, next) => {
       throw new AppError('User university not found', 400);
     }
     
-    const page = parseInt(req.query.page) || 1;
-    const feed = await feedService.getDashboardFeed(universityId, page);
+    const limit = parseInt(req.query.limit) || 10;
+    const cursor = req.query.cursor || null;
+    const result = await feedService.getDashboardFeed(universityId, limit, cursor);
     
     res.status(200).json({
       status: 'success',
-      data: {
-        feed
-      }
+      data: result
     });
   } catch (error) {
     next(error);

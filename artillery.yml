@@ -1,0 +1,21 @@
+config:
+  target: "http://localhost:5001"
+  phases:
+    - duration: 20
+      arrivalRate: 5
+      name: "Warm up"
+    - duration: 20
+      arrivalRate: 20
+      name: "Peak load"
+
+scenarios:
+  - name: "Feed and search"
+    flow:
+      - get:
+          url: "/notes?page=1&limit=10"
+      - get:
+          url: "/notes?tag=DSA"
+      - get:
+          url: "/placements?company=Google&page=1"
+      - get:
+          url: "/feed/dashboard?limit=10"

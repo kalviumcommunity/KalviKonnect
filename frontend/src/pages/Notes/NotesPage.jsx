@@ -4,14 +4,19 @@ import NoteCard from '../../components/notes/NoteCard';
 import SkeletonCard from '../../components/shared/SkeletonCard';
 import ErrorBanner from '../../components/shared/ErrorBanner';
 import EmptyState from '../../components/shared/EmptyState';
+import Pagination from '../../components/shared/Pagination';
 import { Plus, Search, Filter } from 'lucide-react';
 
 const NotesPage = () => {
-  const { status, data, error, fetchNotes } = useNotes();
+  const { status, data, error, pagination, fetchNotes } = useNotes();
 
   useEffect(() => {
     fetchNotes();
   }, [fetchNotes]);
+
+  const handlePageChange = (newPage) => {
+    fetchNotes({ page: newPage });
+  };
 
   const renderContent = () => {
     if (status === 'loading') {
@@ -46,11 +51,21 @@ const NotesPage = () => {
     }
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {data.map(note => (
-          <NoteCard key={note._id} note={note} />
-        ))}
-      </div>
+      <>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {data.map(note => (
+            <NoteCard key={note.id || note._id} note={note} />
+          ))}
+        </div>
+        
+        <Pagination 
+          page={pagination.page}
+          totalPages={pagination.totalPages}
+          hasNextPage={pagination.hasNextPage}
+          onPageChange={handlePageChange}
+          isLoading={status === 'loading'}
+        />
+      </>
     );
   };
 
