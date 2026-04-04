@@ -1,84 +1,69 @@
-// backend/src/utils/promptBuilder.js
+/**
+ * Utility to build structured prompts for Gemini AI.
+ * Ensures model responses follow strict JSON patterns for easy parsing.
+ */
 
-function buildNoteSummaryPrompt(note) {
-  const systemMsg = [
-    "You are an academic assistant for Kalvium engineering students.",
-    "Summarize study notes clearly and concisely for exam preparation.",
-    "Be factual and grounded only in the provided content.",
-    "Always return valid JSON — no markdown fencing, no prose outside the JSON object.",
-  ].join(" ");
-
-  const userPrompt = [
-    `Note Title: ${note.title}`,
-    `Note Content:\n${note.content}`,
-    "",
-    "Generate a concise summary covering the main concepts a student needs for an exam.",
-    "",
-    "Return valid JSON only in this exact shape:",
-    `{ "summary": "string", "keyPoints": ["string"], "examTopics": ["string"] }`,
-    "",
-    "Constraints:",
-    "- Do not add information not present in the note.",
-    "- Maximum 5 key points.",
-    "- Maximum 4 exam topics.",
-    "- If the note is too short to summarize meaningfully, set summary to null.",
-    "- Return only the JSON object. No backticks, no explanation text.",
-  ].join("\n");
-
-  return { systemMsg, userPrompt };
+/**
+ * Builds prompt for summarizing study notes.
+ * @param {object} note - The note object containing title and content.
+ */
+exports.buildNoteSummaryPrompt = (note) => ({
+  systemMsg: "You are an expert academic tutor for Kalvium students. Your goal is to analyze study notes and return structured JSON summaries.",
+  userPrompt: `Analyze the following study note titled "${note.title}".
+Return exactly this JSON format (no markdown, no code fences):
+{
+  "summary": "3-4 sentences concise summary of the key concepts.",
+  "keyPoints": ["point 1", "point 2", "point 3", "point 4", "point 5"],
+  "examTopics": ["topic 1", "likely question 1", "topic 2", "likely question 2"]
 }
 
-function buildPlacementStructurePrompt(placement) {
-  const systemMsg = [
-    "You are a placement preparation assistant for Kalvium engineering students.",
-    "Your job is to structure raw placement experience data into a clear, actionable preparation guide.",
-    "Be factual and grounded only in the provided content.",
-    "Always return valid JSON — no markdown fencing, no prose outside the JSON object.",
-  ].join(" ");
+CONTENT:
+${note.content.substring(0, 3000)}`
+});
 
-  const userPrompt = [
-    `Company: ${placement.company}`,
-    `Role: ${placement.role}`,
-    `Rounds: ${JSON.stringify(placement.rounds)}`,
-    `Questions Asked: ${JSON.stringify(placement.questions)}`,
-    `Tips from candidate: ${placement.tips || "None provided"}`,
-    "",
-    "Structure this placement experience into a round-by-round preparation guide.",
-    "",
-    "Return valid JSON only in this exact shape:",
-    `{
-  "company": "string",
-  "role": "string",
-  "rounds": [{ "roundName": "string", "focus": "string", "prepTopics": ["string"] }],
-  "preparationChecklist": ["string"],
-  "keyTakeaway": "string"
-}`,
-    "",
-    "Constraints:",
-    "- Do not fabricate details not present in the input.",
-    "- preparationChecklist must have 3 to 6 items.",
-    "- Return only the JSON object. No backticks, no explanation text.",
-  ].join("\n");
-
-  return { systemMsg, userPrompt };
+/**
+ * Builds prompt for structuring raw placement experiences.
+ * @param {string} rawText - Raw student-written experience.
+ * @param {string} company - Target company name.
+ * @param {string} role - Target role.
+ */
+exports.buildPlacementStructurePrompt = (rawText, company, role) => ({
+  systemMsg: "You are a senior career advisor specialized in tech placement preparation. Your goal is to turn raw student descriptions into structured interview guides.",
+  userPrompt: `Analyze this placement experience for the role of ${role} at ${company}.
+Return exactly this JSON format (no markdown, no code fences):
+{
+  "roundBreakdown": [
+    { "round": "Round Title", "focus": "Technical/HR focus points", "tips": "Actionable advice for this round" }
+  ],
+  "prepTopics": ["topic 1", "topic 2", "topic 3"],
+  "prepChecklist": [
+    { "category": "Technical/DSA", "items": ["array basics", "system design"] }
+  ]
 }
 
-function parseAIJson(rawContent) {
+RAW EXPERIENCE:
+${rawText.substring(0, 2500)}`
+});
+
+/**
+ * Helper to safely parse AI JSON responses.
+ * Handles cases where the AI might include markdown or extra characters.
+ */
+exports.parseAIJson = (text) => {
   try {
-    const cleaned = rawContent
-      .replace(/^```json\s*/i, "")
-      .replace(/^```\s*/i, "")
-      .replace(/```\s*$/i, "")
-      .trim();
-    return { success: true, data: JSON.parse(cleaned) };
-  } catch {
+    // Attempt to extract JSON if it's wrapped in triple backticks (common with LLMs)
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const cleanText = jsonMatch ? jsonMatch[0] : text;
+    
+    return {
+      success: true,
+      data: JSON.parse(cleanText)
+    };
+  } catch (err) {
+    console.error("[PARSER ERROR] Failed to parse AI response:", err.message);
     return {
       success: false,
-      error:   "parse_error",
-      message: "AI returned an unparseable response. Please try again.",
-      raw:     rawContent,
+      error: "Malformed AI response structure."
     };
   }
-}
-
-module.exports = { buildNoteSummaryPrompt, buildPlacementStructurePrompt, parseAIJson };
+};
