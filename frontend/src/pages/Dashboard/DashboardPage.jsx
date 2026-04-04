@@ -6,12 +6,11 @@ import SkeletonCard from '../../components/shared/SkeletonCard';
 import ErrorBanner from '../../components/shared/ErrorBanner';
 import EmptyState from '../../components/shared/EmptyState';
 import { useAuth } from '../../hooks/useAuth';
-import { getDashboardFeed } from '../../services/feed.service';
-import { Search, TrendingUp, Users, Calendar, BookOpen, Trophy, Megaphone, MessageSquare, LayoutDashboard } from 'lucide-react';
+import { getPosts } from '../../services/post.service';
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('college');
+  const [activeTab, setActiveTab] = useState('COLLEGE');
   const [status, setStatus] = useState('idle');
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(null);
@@ -20,9 +19,13 @@ const DashboardPage = () => {
     setStatus('loading');
     setError(null);
     try {
-      const response = await getDashboardFeed(1);
-      setPosts(response.data.feed);
-      setStatus('success');
+      const response = await getPosts(activeTab);
+      if (response.success) {
+        setPosts(response.data.posts);
+        setStatus('success');
+      } else {
+        throw new Error('API failure');
+      }
     } catch (err) {
       setError('Failed to load feed');
       setStatus('error');
@@ -76,7 +79,7 @@ const DashboardPage = () => {
             <FeedTabs activeTab={activeTab} onTabChange={setActiveTab} />
           </div>
           
-          <PostForm />
+          <PostForm onPostCreated={fetchFeed} />
 
           <div className="space-y-4">
             {status === 'loading' ? (
@@ -86,7 +89,7 @@ const DashboardPage = () => {
             ) : posts.length === 0 ? (
               <EmptyState title="Quiet day" message="Nothing to show yet." />
             ) : (
-              posts.map(post => <PostCard key={post._id} post={post} />)
+              posts.map(post => <PostCard key={post.id} post={post} />)
             )}
           </div>
         </div>

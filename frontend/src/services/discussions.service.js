@@ -5,7 +5,12 @@ export const getDiscussions = async (params) => {
   return response.data;
 };
 
-export const createThread = async (threadData) => {
-  const response = await api.post('/discussions', threadData);
+export const getDiscussionById = async (id) => {
+  const response = await api.get(`/discussions/${id}`);
+  return response.data;
+};
+
+export const replyToThread = async (id, content, isBlocker = false) => {
+  const response = await api.post(`/discussions/${id}/reply`, { content, isBlocker });
   return response.data;
 };

@@ -12,6 +12,7 @@ import DashboardPage from './pages/Dashboard/DashboardPage';
 import NotesPage from './pages/Notes/NotesPage';
 import NoteDetailPage from './pages/Notes/NoteDetailPage';
 import PlacementsPage from './pages/Placements/PlacementsPage';
+import PlacementDetailPage from './pages/Placements/PlacementDetailPage';
 import HackathonsPage from './pages/Hackathons/HackathonsPage';
 import DiscussionsPage from './pages/Discussions/DiscussionsPage';
 import AnnouncementsPage from './pages/Announcements/AnnouncementsPage';
@@ -61,6 +62,12 @@ function App() {
           <Route path="/placements" element={
             <ProtectedRoute>
               <AppLayout><PlacementsPage /></AppLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/placements/:id" element={
+            <ProtectedRoute>
+              <AppLayout><PlacementDetailPage /></AppLayout>
             </ProtectedRoute>
           } />
           

@@ -5,7 +5,12 @@ export const getPlacements = async (params) => {
   return response.data;
 };
 
-export const createPlacement = async (placementData) => {
-  const response = await api.post('/placements', placementData);
+export const getPlacementById = async (id) => {
+  const response = await api.get(`/placements/${id}`);
+  return response.data;
+};
+
+export const analyzePlacement = async (id) => {
+  const response = await api.post(`/placements/${id}/ai/analyze`);
   return response.data;
 };

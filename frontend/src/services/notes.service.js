@@ -19,3 +19,8 @@ export const upvoteNote = async (id) => {
   const response = await api.post(`/upvotes`, { noteId: id });
   return response.data;
 };
+
+export const analyzeNote = async (id) => {
+  const response = await api.post(`/notes/${id}/ai/analyze`);
+  return response.data;
+};

@@ -18,7 +18,7 @@ const DiscussionsPage = () => {
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map(i => (
-            <SkeletonCard key={i} />
+            <div key={i} className="animate-pulse bg-white border border-slate-100 rounded-[2rem] p-8 h-48 shadow-sm"></div>
           ))}
         </div>
       );
@@ -32,14 +32,14 @@ const DiscussionsPage = () => {
       );
     }
 
-    if (status === 'success' && data.length === 0) {
+    if (status === 'success' && (!data || data.length === 0)) {
       return (
-        <div className="mt-12">
+        <div className="mt-12 bg-white rounded-[2.5rem] p-16 border border-dashed border-slate-300 text-center">
           <EmptyState 
             title="No discussions started" 
-            message="Have a question or a topic to share? Start the first thread!"
-            onAction={() => console.log('Open Thread Modal')}
-            actionLabel="Start Discussion"
+            message="Have a question or a topic to share? Start the first thread and get help from the community!"
+            onAction={() => {}}
+            actionLabel="Start First Discussion"
           />
         </div>
       );
@@ -48,32 +48,34 @@ const DiscussionsPage = () => {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {data.map(thread => (
-          <ThreadCard key={thread._id} thread={thread} />
+          <ThreadCard key={thread.id} thread={thread} />
         ))}
       </div>
     );
   };
 
   return (
-    <div className="space-y-8 animate-in slide-in-from-right duration-500">
+    <div className="max-w-7xl mx-auto space-y-8 animate-in slide-in-from-right duration-700 pb-12">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 font-outfit">Community Discussions</h1>
-          <p className="text-slate-500 mt-1">Ask questions, share ideas, and connect with other Kalvians.</p>
+          <h1 className="text-4xl font-bold text-slate-900 font-outfit tracking-tight">Community <span className="text-kalvium">Discussions</span></h1>
+          <p className="text-slate-500 mt-2 text-lg">Ask questions, share ideas, and connect with other Kalvians.</p>
         </div>
-        <button className="flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-95">
-          <MessageSquarePlus className="w-5 h-5 mr-2" />
+        <button className="flex items-center justify-center px-8 py-4 bg-kalvium hover:bg-red-600 text-white font-bold rounded-2xl transition-all shadow-xl shadow-kalvium/20 active:scale-95 group">
+          <MessageSquarePlus className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
           Start New Thread
         </button>
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-        <input 
-          type="text" 
-          placeholder="Search for topics, questions..." 
-          className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-900 shadow-sm transition-all shadow-inner"
-        />
+      <div className="bg-white border border-slate-200 p-2 rounded-2xl shadow-sm">
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <input 
+            type="text" 
+            placeholder="Search for topics, questions, or tags..." 
+            className="w-full pl-12 pr-4 py-4 bg-transparent border-none focus:ring-0 text-slate-900 placeholder-slate-400 font-medium"
+          />
+        </div>
       </div>
 
       {renderContent()}
