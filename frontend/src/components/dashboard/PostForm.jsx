@@ -1,6 +1,3 @@
-import React from 'react';
-import { Send, Image, Link2, Smile } from 'lucide-react';
-
 import React, { useState } from 'react';
 import { Send, Image, Link2, Smile, Globe, Home } from 'lucide-react';
 import { createPost } from '../../services/post.service';

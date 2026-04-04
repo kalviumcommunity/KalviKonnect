@@ -66,4 +66,4 @@ const HackathonCard = ({ hackathon, onApply }) => {
   );
 };
 
-export default HackathonCard;
+export default React.memo(HackathonCard);

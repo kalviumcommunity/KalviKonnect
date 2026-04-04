@@ -1,21 +1,24 @@
 config:
   target: "http://localhost:5001"
   phases:
-    - duration: 20
-      arrivalRate: 5
+    - duration: 30
+      arrivalRate: 10
       name: "Warm up"
-    - duration: 20
-      arrivalRate: 20
-      name: "Peak load"
+    - duration: 60
+      arrivalRate: 50
+      name: "Peak load — 50 concurrent users"
+  defaults:
+    headers:
+      Content-Type: "application/json"
 
 scenarios:
-  - name: "Feed and search"
+  - name: "Feed browsing"
     flow:
       - get:
-          url: "/notes?page=1&limit=10"
+          url: "/api/notes?page=1&limit=10"
       - get:
-          url: "/notes?tag=DSA"
+          url: "/api/placements?page=1&limit=10"
       - get:
-          url: "/placements?company=Google&page=1"
+          url: "/api/posts?scope=kalvium&limit=10"
       - get:
-          url: "/feed/dashboard?limit=10"
+          url: "/api/search?q=DSA"

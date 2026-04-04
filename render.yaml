@@ -1,10 +1,9 @@
 services:
   - type: web
     name: kalvikonnect-backend
-    runtime: node
-    buildCommand: npm install && npx prisma generate && npx prisma migrate deploy
-    startCommand: npm start
-    healthCheckPath: /health
+    env: node
+    buildCommand: cd backend && npm install && npx prisma generate && npx prisma migrate deploy
+    startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -13,19 +12,13 @@ services:
           name: kalvikonnect-db
           property: connectionString
       - key: JWT_SECRET
+        generateValue: true
+      - key: GEMINI_API_KEY
         sync: false
-      - key: CORS_ORIGIN
-        sync: false
-
-  - type: static
-    name: kalvikonnect-frontend
-    buildCommand: npm run build
-    staticPublishPath: ./dist
-    envVars:
-      - key: VITE_API_URL
-        sync: false
+      - key: FRONTEND_URL
+        value: https://kalvikonnect.netlify.app
 
 databases:
   - name: kalvikonnect-db
     databaseName: kalvikonnect
-    user: kalvikonnect_user
+    user: kalvikonnect

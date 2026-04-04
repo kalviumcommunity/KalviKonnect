@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, X, FileText, Briefcase, MessageSquare, Terminal, ArrowRight, Loader2, Command } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import debounce from 'lodash/debounce';
 
 const GlobalSearch = ({ isOpen, onClose }) => {
   const [query, setQuery] = useState('');
@@ -10,29 +9,27 @@ const GlobalSearch = ({ isOpen, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef(null);
+  const timerRef = useRef(null);
   const navigate = useNavigate();
 
-  const handleSearch = useCallback(
-    debounce(async (searchQuery) => {
-      if (searchQuery.length < 2) {
-        setResults([]);
-        setLoading(false);
-        return;
+  const handleSearch = useCallback(async (searchQuery) => {
+    if (searchQuery.length < 2) {
+      setResults([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await api.get(`/search?q=${encodeURIComponent(searchQuery)}`);
+      if (response.data.success) {
+        setResults(response.data.data);
       }
-      setLoading(true);
-      try {
-        const response = await api.get(`/search?q=${searchQuery}`);
-        if (response.data.success) {
-          setResults(response.data.data);
-        }
-      } catch (error) {
-        console.error('Search failed:', error);
-      } finally {
-        setLoading(false);
-      }
-    }, 300),
-    []
-  );
+    } catch (error) {
+      console.error('Search failed:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -43,7 +40,11 @@ const GlobalSearch = ({ isOpen, onClose }) => {
   }, [isOpen]);
 
   useEffect(() => {
-    handleSearch(query);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      handleSearch(query);
+    }, 300);
+    return () => clearTimeout(timerRef.current);
   }, [query, handleSearch]);
 
   const handleKeyDown = (e) => {
