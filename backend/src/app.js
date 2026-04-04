@@ -19,6 +19,7 @@ const upvoteRoutes = require('./routes/upvoteRoutes');
 const bookmarkRoutes = require('./routes/bookmarkRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const postRoutes = require('./routes/postRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 const healthRouter = require('./routes/health.route');
 
 const app = express();
@@ -72,6 +73,7 @@ app.use('/upvotes', upvoteRoutes);
 app.use('/bookmarks', bookmarkRoutes);
 app.use('/announcements', announcementRoutes);
 app.use('/posts', postRoutes);
+app.use('/notifications', notificationRoutes);
 
 // 404 handler
 app.use((req, res, next) => {
@@ -79,12 +81,20 @@ app.use((req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
+const http = require('http');
+const socketUtil = require('./utils/socket');
+
 // Centralized Error Handling
 app.use(errorHandler);
 
 if (process.env.NODE_ENV !== 'test') {
-  const server = app.listen(PORT, () => {
-    console.log(`Kalvi Connect API running on port ${PORT}`);
+  const server = http.createServer(app);
+  
+  // Initialize Socket.io
+  socketUtil.init(server);
+
+  server.listen(PORT, () => {
+    console.log(`Kalvi Connect API + Realtime running on port ${PORT}`);
   });
 
   server.on('error', (e) => {

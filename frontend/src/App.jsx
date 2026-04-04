@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthProvider';
+import { SocketProvider } from './context/SocketContext';
 import ProtectedRoute from './components/shared/ProtectedRoute';
 import Navbar from './components/shared/Navbar';
 import Sidebar from './components/shared/Sidebar';
@@ -37,7 +38,8 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <Routes>
+        <SocketProvider>
+          <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           
@@ -91,6 +93,7 @@ function App() {
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </SocketProvider>
       </AuthProvider>
     </Router>
   );

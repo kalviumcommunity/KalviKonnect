@@ -71,9 +71,14 @@ exports.getThreadById = async (id) => {
   return thread;
 };
 
+const notificationService = require('./notificationService');
+
 exports.replyToThread = async (threadId, content, authorId, isBlocker = false) => {
   return await prisma.$transaction(async (tx) => {
-    const thread = await tx.discussionThread.findUnique({ where: { id: threadId } });
+    const thread = await tx.discussionThread.findUnique({ 
+      where: { id: threadId },
+      select: { authorId: true, title: true }
+    });
     if (!thread) throw new AppError('Thread not found', 404);
 
     const reply = await tx.discussionReply.create({
@@ -87,6 +92,17 @@ exports.replyToThread = async (threadId, content, authorId, isBlocker = false) =
       where: { id: threadId },
       data: { replyCount: { increment: 1 } }
     });
+
+    // Notify the thread author (only if it's not self-reply)
+    if (thread.authorId && thread.authorId !== authorId) {
+      notificationService.createNotification(thread.authorId, {
+        type: 'REPLY',
+        title: 'New reply to your discussion',
+        message: `${reply.author.name} replied to "${thread.title}"`,
+        link: `/discussions/${threadId}`,
+        senderId: authorId
+      }).catch(err => console.error("Reply notification failed:", err));
+    }
 
     return reply;
   });

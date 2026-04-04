@@ -1,27 +1,26 @@
-import React, { useState } from 'react';
-import { LogOut, User, Menu, X, Bell } from 'lucide-react';
+import { LogOut, User, Menu, X } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import NotificationDropdown from './NotificationDropdown';
 
 const Navbar = ({ onMenuToggle }) => {
   const { user, logout } = useAuth();
 
   return (
-    <nav className="h-16 bg-white border-b border-slate-200 px-4 flex items-center justify-between sticky top-0 z-40">
-      <div className="flex items-center">
+    <nav className="h-[72px] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-6 flex items-center justify-between sticky top-0 z-50">
+      <div className="flex items-center gap-4">
         <button 
           onClick={onMenuToggle}
-          className="p-2 mr-2 text-slate-500 hover:text-slate-900 lg:hidden"
+          className="p-2.5 rounded-2xl bg-slate-50 border border-slate-100 text-slate-500 hover:text-kalvium lg:hidden transition-all active:scale-95"
         >
           <Menu className="w-6 h-6" />
         </button>
-        <span className="text-xl font-bold text-kalvium font-outfit lg:hidden">KalviConnect</span>
+        <span className="text-2xl font-black text-slate-900 font-outfit lg:hidden tracking-tighter italic">
+          K<span className="text-kalvium">C</span>
+        </span>
       </div>
 
-      <div className="flex items-center space-x-4">
-        <button className="p-2 text-slate-400 hover:text-kalvium transition-colors relative">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-kalvium rounded-full"></span>
-        </button>
+      <div className="flex items-center space-x-5">
+        <NotificationDropdown />
         
         <div className="flex items-center space-x-3 pl-4 border-l border-slate-200">
           <div className="text-right hidden sm:block">
