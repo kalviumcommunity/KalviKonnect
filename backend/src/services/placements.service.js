@@ -3,20 +3,73 @@ const AppError = require('../utils/AppError');
 const { generateResponse } = require("./aiService");
 const { buildPlacementStructurePrompt, parseAIJson } = require("../utils/promptBuilder");
 
-exports.getStructureForPlacement = async (placementId) => {
+exports.analyzePlacementWithAI = async (placementId) => {
   const placement = await prisma.placementPost.findUnique({
-    where:  { id: placementId },
-    select: { id: true, company: true, role: true, rounds: true, questions: true, tips: true },
+    where: { id: placementId },
+    select: { 
+      id: true, 
+      company: true, 
+      role: true, 
+      content: true,
+      aiRoundBreakdown: true,
+      aiPrepTopics: true,
+      aiPrepChecklist: true,
+      aiAnalyzedAt: true
+    },
   });
-  if (!placement) throw Object.assign(new Error("Placement not found"), { statusCode: 404 });
 
-  const { systemMsg, userPrompt } = buildPlacementStructurePrompt(placement);
+  if (!placement) throw new AppError("Placement experience not found", 404);
+
+  // Cache Check: 24 hours
+  const CACHE_LIMIT = 24 * 60 * 60 * 1000;
+  const isCacheValid = placement.aiAnalyzedAt && (Date.now() - new Date(placement.aiAnalyzedAt).getTime() < CACHE_LIMIT);
+
+  if (isCacheValid && placement.aiRoundBreakdown) {
+    console.log(`[AI CACHE] Returning cached analysis for placement: ${placementId}`);
+    return {
+      success: true,
+      data: {
+        roundBreakdown: placement.aiRoundBreakdown,
+        prepTopics: placement.aiPrepTopics,
+        prepChecklist: placement.aiPrepChecklist,
+        cached: true,
+        lastAnalyzed: placement.aiAnalyzedAt
+      }
+    };
+  }
+
+  // No cache -> Run Gemini
+  const { systemMsg, userPrompt } = buildPlacementStructurePrompt(placement.content, placement.company, placement.role);
   const aiResult = await generateResponse(userPrompt, systemMsg);
 
   if (!aiResult.success) return aiResult;
 
-  const parsed = parseAIJson(aiResult.data.result);
-  return parsed.success ? { success: true, data: parsed.data } : parsed;
+  const parsed = parseAIJson(aiResult.text);
+  if (!parsed.success) return parsed;
+
+  const { roundBreakdown, prepTopics, prepChecklist } = parsed.data;
+
+  // Save for caching
+  const updated = await prisma.placementPost.update({
+    where: { id: placementId },
+    data: {
+      aiRoundBreakdown: roundBreakdown,
+      aiPrepTopics: prepTopics,
+      aiPrepChecklist: prepChecklist,
+      aiAnalyzedAt: new Date()
+    }
+  });
+
+  return {
+    success: true,
+    data: {
+      roundBreakdown: updated.aiRoundBreakdown,
+      prepTopics: updated.aiPrepTopics,
+      prepChecklist: updated.aiPrepChecklist,
+      cached: false,
+      lastAnalyzed: updated.aiAnalyzedAt
+    }
+  };
 };
 
 exports.createPlacement = async (placementData, authorId) => {

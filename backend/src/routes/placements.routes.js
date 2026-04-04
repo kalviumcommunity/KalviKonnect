@@ -5,7 +5,7 @@ const { validatePlacementInput, aiRateLimiter } = require("../middleware/aiGuard
 
 const router = express.Router();
 
-router.post('/:id/structure', auth, aiRateLimiter, validatePlacementInput, placementController.structurePlacement);
+router.post('/:id/ai/analyze', auth, aiRateLimiter, placementController.analyzePlacement);
 router.post('/', auth, placementController.createPlacement);
 router.get('/', placementController.getPlacements);
 router.get('/:id', placementController.getPlacementById);
