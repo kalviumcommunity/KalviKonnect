@@ -1,21 +1,29 @@
 const prisma = require('../db');
 const AppError = require('../utils/AppError');
 
-exports.createBookmark = async (userId, target) => {
+exports.toggleBookmark = async (userId, target) => {
   const { noteId, placementId, hackathonId } = target;
 
   if (!noteId && !placementId && !hackathonId) {
-    throw new AppError('At least one of noteId, placementId, or hackathonId must be provided', 400);
+    throw new AppError('A target (note, placement, or hackathon) must be provided', 400);
   }
 
-  return await prisma.bookmark.create({
-    data: {
-      userId,
-      noteId: noteId || undefined,
-      placementId: placementId || undefined,
-      hackathonId: hackathonId || undefined,
-    },
-  });
+  const where = { userId };
+  if (noteId) where.noteId = noteId;
+  else if (placementId) where.placementId = placementId;
+  else if (hackathonId) where.hackathonId = hackathonId;
+
+  const existing = await prisma.bookmark.findFirst({ where });
+
+  if (existing) {
+    await prisma.bookmark.delete({ where: { id: existing.id } });
+    return { bookmarked: false };
+  } else {
+    await prisma.bookmark.create({
+      data: { userId, ...(noteId && { noteId }), ...(placementId && { placementId }), ...(hackathonId && { hackathonId }) }
+    });
+    return { bookmarked: true };
+  }
 };
 
 exports.getBookmarks = async (userId, query) => {

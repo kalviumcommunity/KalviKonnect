@@ -94,7 +94,7 @@ exports.createNote = async (noteData, authorId) => {
 };
 
 exports.getNotes = async (query) => {
-  const { page = 1, limit = 10, tag, universityId, sort = 'latest' } = query;
+  const { page = 1, limit = 10, tag, universityId, semester, sort = 'latest' } = query;
   const parsedPage = Math.max(parseInt(page), 1);
   const parsedLimit = Math.min(Math.max(parseInt(limit), 1), 50);
   const skip = (parsedPage - 1) * parsedLimit;
@@ -102,6 +102,9 @@ exports.getNotes = async (query) => {
   const where = {};
   if (universityId) {
     where.universityId = universityId;
+  }
+  if (semester) {
+    where.semester = parseInt(semester);
   }
   if (tag) {
     where.tags = {
@@ -155,7 +158,8 @@ exports.getNoteById = async (id) => {
     where: { id },
     include: {
       tags: { include: { tag: true } },
-      author: true,
+      author: { select: { id: true, name: true, role: true } },
+      university: { select: { id: true, name: true } }
     },
   });
 

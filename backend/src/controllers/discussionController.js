@@ -2,8 +2,8 @@ const discussionService = require('../services/discussionService');
 
 exports.createThread = async (req, res, next) => {
   try {
-    const data = await discussionService.createThread(req.body, req.user.id);
-    res.status(201).json({ error: false, data });
+    const data = await discussionService.createThread(req.body, req.user.userId);
+    res.status(201).json({ success: true, data });
   } catch (err) {
     next(err);
   }
@@ -12,7 +12,16 @@ exports.createThread = async (req, res, next) => {
 exports.getThreads = async (req, res, next) => {
   try {
     const data = await discussionService.getThreads(req.query);
-    res.status(200).json({ error: false, ...data });
+    res.status(200).json({ success: true, ...data });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getThreadById = async (req, res, next) => {
+  try {
+    const data = await discussionService.getThreadById(req.params.id);
+    res.status(200).json({ success: true, data });
   } catch (err) {
     next(err);
   }
@@ -20,8 +29,9 @@ exports.getThreads = async (req, res, next) => {
 
 exports.reply = async (req, res, next) => {
   try {
-    const data = await discussionService.replyToThread(req.params.id, req.body.content, req.user.id);
-    res.status(201).json({ error: false, data });
+    const { content, isBlocker = false } = req.body;
+    const data = await discussionService.replyToThread(req.params.id, content, req.user.userId, isBlocker);
+    res.status(201).json({ success: true, data });
   } catch (err) {
     next(err);
   }

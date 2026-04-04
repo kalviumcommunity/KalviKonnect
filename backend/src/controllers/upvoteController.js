@@ -1,9 +1,9 @@
 const upvoteService = require('../services/upvoteService');
 
-exports.upvote = async (req, res, next) => {
+exports.toggleUpvote = async (req, res, next) => {
   try {
-    const upvote = await upvoteService.upvote(req.user.id, req.body);
-    res.status(201).json({ error: false, data: upvote });
+    const result = await upvoteService.toggleUpvote(req.user.userId, req.body);
+    res.status(200).json({ success: true, data: result });
   } catch (err) {
     next(err);
   }

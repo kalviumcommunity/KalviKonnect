@@ -75,7 +75,7 @@ exports.analyzePlacementWithAI = async (placementId) => {
 exports.createPlacement = async (placementData, authorId) => {
   const { company, role, content, rounds } = placementData;
 
-  return await prisma.placementPost.create({
+  const placement = await prisma.placementPost.create({
     data: {
       company,
       role,
@@ -84,9 +84,10 @@ exports.createPlacement = async (placementData, authorId) => {
       author: { connect: { id: authorId } },
     },
     include: {
-      author: true, // Bug: Including all author fields including password and massive relations
+      author: { select: { id: true, name: true, role: true } },
     },
   });
+  return placement;
 };
 
 exports.getPlacements = async (query) => {
@@ -112,11 +113,12 @@ exports.getPlacements = async (query) => {
         role: true,
         createdAt: true,
         upvoteCount: true,
+        aiAnalyzedAt: true,
         author: {
           select: {
             id: true,
             name: true,
-            email: true // needed for contact maybe? but user said "only { id, name }"
+            role: true
           }
         }
       }
@@ -138,7 +140,7 @@ exports.getPlacementById = async (id) => {
   const placement = await prisma.placementPost.findUnique({
     where: { id },
     include: {
-      author: true, // Bug: Including all author fields
+      author: { select: { id: true, name: true, role: true } },
     },
   });
 

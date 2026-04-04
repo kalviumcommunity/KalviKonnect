@@ -12,8 +12,8 @@ exports.analyzePlacement = async (req, res, next) => {
 
 exports.createPlacement = async (req, res, next) => {
   try {
-    const data = await placementService.createPlacement(req.body, req.user.id);
-    res.status(201).json({ error: false, data });
+    const data = await placementService.createPlacement(req.body, req.user.userId);
+    res.status(201).json({ success: true, data });
   } catch (err) {
     next(err);
   }
@@ -22,7 +22,7 @@ exports.createPlacement = async (req, res, next) => {
 exports.getPlacements = async (req, res, next) => {
   try {
     const data = await placementService.getPlacements(req.query);
-    res.status(200).json({ error: false, ...data });
+    res.status(200).json({ success: true, ...data });
   } catch (err) {
     next(err);
   }
@@ -31,7 +31,7 @@ exports.getPlacements = async (req, res, next) => {
 exports.getPlacementById = async (req, res, next) => {
   try {
     const placement = await placementService.getPlacementById(req.params.id);
-    res.status(200).json({ error: false, data: placement });
+    res.status(200).json({ success: true, data: placement });
   } catch (err) {
     next(err);
   }

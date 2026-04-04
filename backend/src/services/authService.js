@@ -45,7 +45,10 @@ exports.register = async (userData) => {
     });
 
     const token = createToken(user.id, user.role, user.email);
-    return { ...user, token };
+    
+    // Clean user for return
+    const { password: _, ...cleanUser } = user;
+    return { ...cleanUser, token };
   } catch (err) {
     if (err.code === 'P2002') {
       throw new AppError('Email already registered', 409);
@@ -60,15 +63,30 @@ exports.login = async (email, password) => {
   });
 
   if (!user || !(await bcrypt.compare(password, user.password))) {
-    throw new AppError('Invalid credentials', 401);
+    throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
   }
 
   // Update lastActiveAt
-  await prisma.user.update({
+  const updatedUser = await prisma.user.update({
     where: { id: user.id },
     data: { lastActiveAt: new Date() },
   });
 
   const token = createToken(user.id, user.role, user.email);
-  return { ...user, token };
+  
+  // Clean user for return
+  const { password: _, ...cleanUser } = updatedUser;
+  return { ...cleanUser, token };
+};
+
+exports.getUserMe = async (userId) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: { university: { select: { id: true, name: true } } }
+  });
+
+  if (!user) throw new AppError('User not found', 404);
+
+  const { password: _, ...cleanUser } = user;
+  return cleanUser;
 };

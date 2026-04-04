@@ -24,6 +24,7 @@ model University {
   location  String?
   users     User[]
   notes     Note[]
+  posts     Post[] // Back-relation for unified posts
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -45,6 +46,9 @@ model User {
   threads         DiscussionThread[]
   replies         DiscussionReply[]
   announcements   Announcement[]
+  posts           Post[] // Unified dashboard posts
+  likes           Like[] // Back-relation for likes
+  applications    HackathonApplication[] // Back-relation for hackathons
   upvotes         Upvote[]
   bookmarks       Bookmark[]
 
@@ -52,6 +56,39 @@ model User {
   updatedAt       DateTime           @updatedAt
 
   @@index([universityId])
+}
+
+model Post {
+  id             String      @id @default(uuid())
+  content        String      @db.Text
+  author         User        @relation(fields: [authorId], references: [id])
+  authorId       String
+  university     University  @relation(fields: [universityId], references: [id])
+  universityId   String
+  
+  // Scope: COLLEGE (university only) or KALVIUM (public to network)
+  scope          String      @default("COLLEGE")
+  
+  likeCount      Int         @default(0)
+  likes          Like[]
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([universityId, scope, createdAt])
+  @@index([authorId])
+}
+
+model Like {
+  id             String      @id @default(uuid())
+  user           User        @relation(fields: [userId], references: [id])
+  userId         String
+  post           Post        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId         String
+
+  createdAt      DateTime    @default(now())
+
+  @@unique([userId, postId])
 }
 
 model Note {
@@ -131,12 +168,28 @@ model Hackathon {
   authorId       String
   
   bookmarks      Bookmark[]  @relation("HackathonBookmarks")
+  applications   HackathonApplication[]
 
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
   @@index([status])
   @@index([authorId])
+}
+
+model HackathonApplication {
+  id             String      @id @default(uuid())
+  hackathon      Hackathon   @relation(fields: [hackathonId], references: [id])
+  hackathonId    String
+  user           User        @relation(fields: [userId], references: [id])
+  userId         String
+  
+  status         String      @default("PENDING") // PENDING, SELECTED, REJECTED
+  
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@unique([userId, hackathonId])
 }
 
 model DiscussionThread {
@@ -172,6 +225,8 @@ model DiscussionReply {
   
   // Denormalized Summary
   upvoteCount    Int              @default(0)
+  
+  isBlocker      Boolean          @default(false)
   
   upvotes        Upvote[]         @relation("ReplyUpvotes")
 

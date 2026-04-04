@@ -52,13 +52,35 @@ exports.getThreads = async (query) => {
   };
 };
 
-exports.replyToThread = async (threadId, content, authorId) => {
+exports.getThreadById = async (id) => {
+  const thread = await prisma.discussionThread.findUnique({
+    where: { id },
+    include: {
+      author: { select: { id: true, name: true, role: true } },
+      tags: { select: { tag: { select: { name: true } } } },
+      replies: {
+        orderBy: { createdAt: 'asc' },
+        include: {
+          author: { select: { id: true, name: true, role: true } }
+        }
+      }
+    }
+  });
+
+  if (!thread) throw new AppError('Discussion thread not found', 404);
+  return thread;
+};
+
+exports.replyToThread = async (threadId, content, authorId, isBlocker = false) => {
   return await prisma.$transaction(async (tx) => {
     const thread = await tx.discussionThread.findUnique({ where: { id: threadId } });
     if (!thread) throw new AppError('Thread not found', 404);
 
     const reply = await tx.discussionReply.create({
-      data: { content, threadId, authorId }
+      data: { content, threadId, authorId, isBlocker },
+      include: {
+        author: { select: { id: true, name: true } }
+      }
     });
 
     await tx.discussionThread.update({
