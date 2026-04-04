@@ -20,6 +20,7 @@ const bookmarkRoutes = require('./routes/bookmarkRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const postRoutes = require('./routes/postRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const searchRoutes = require('./routes/searchRoutes');
 const healthRouter = require('./routes/health.route');
 
 const app = express();
@@ -74,6 +75,7 @@ app.use('/bookmarks', bookmarkRoutes);
 app.use('/announcements', announcementRoutes);
 app.use('/posts', postRoutes);
 app.use('/notifications', notificationRoutes);
+app.use('/search', searchRoutes);
 
 // 404 handler
 app.use((req, res, next) => {
