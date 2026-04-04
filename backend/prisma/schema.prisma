@@ -67,6 +67,12 @@ model Note {
   universityId   String
   author         User        @relation(fields: [authorId], references: [id])
   authorId       String
+
+  // AI Caching
+  aiSummary      String?     @db.Text
+  aiKeyPoints    Json?       // array of strings
+  aiTopics       Json?       // array of exam topics/questions
+  aiAnalyzedAt   DateTime?
   
   // Denormalized Summary
   upvoteCount    Int         @default(0)
@@ -89,6 +95,12 @@ model PlacementPost {
   role           String
   content        String      @db.Text
   rounds         Json?       // Structured round details
+
+  // AI Caching
+  aiRoundBreakdown Json?
+  aiPrepTopics     Json?
+  aiPrepChecklist  Json?
+  aiAnalyzedAt     DateTime?
   
   // Relations
   author         User        @relation(fields: [authorId], references: [id])

@@ -3,20 +3,72 @@ const AppError = require('../utils/AppError');
 const { generateResponse } = require("./aiService");
 const { buildNoteSummaryPrompt, parseAIJson } = require("../utils/promptBuilder");
 
-exports.getSummaryForNote = async (noteId) => {
+exports.analyzeNoteWithAI = async (noteId) => {
   const note = await prisma.note.findUnique({
-    where:  { id: noteId },
-    select: { id: true, title: true, content: true },
+    where: { id: noteId },
+    select: { 
+      id: true, 
+      title: true, 
+      content: true,
+      aiSummary: true,
+      aiKeyPoints: true,
+      aiTopics: true,
+      aiAnalyzedAt: true
+    },
   });
-  if (!note) throw Object.assign(new Error("Note not found"), { statusCode: 404 });
 
+  if (!note) throw new AppError("Note not found", 404);
+
+  // Cache Check: Use cached results if analyze within last 24 hours
+  const CACHE_LIMIT = 24 * 60 * 60 * 1000; // 24 hours in ms
+  const isCacheValid = note.aiAnalyzedAt && (Date.now() - new Date(note.aiAnalyzedAt).getTime() < CACHE_LIMIT);
+
+  if (isCacheValid && note.aiSummary) {
+    console.log(`[AI CACHE] Returning cached analysis for note: ${noteId}`);
+    return {
+      success: true,
+      data: {
+        summary: note.aiSummary,
+        keyPoints: note.aiKeyPoints,
+        examTopics: note.aiTopics,
+        cached: true,
+        lastAnalyzed: note.aiAnalyzedAt
+      }
+    };
+  }
+
+  // No valid cache -> Run Gemini Analysis
   const { systemMsg, userPrompt } = buildNoteSummaryPrompt(note);
   const aiResult = await generateResponse(userPrompt, systemMsg);
 
   if (!aiResult.success) return aiResult;
 
-  const parsed = parseAIJson(aiResult.data.result);
-  return parsed.success ? { success: true, data: parsed.data } : parsed;
+  const parsed = parseAIJson(aiResult.text);
+  if (!parsed.success) return parsed;
+
+  const { summary, keyPoints, examTopics } = parsed.data;
+
+  // Save to Note for caching
+  const updatedNote = await prisma.note.update({
+    where: { id: noteId },
+    data: {
+      aiSummary: summary,
+      aiKeyPoints: keyPoints,
+      aiTopics: examTopics,
+      aiAnalyzedAt: new Date()
+    }
+  });
+
+  return {
+    success: true,
+    data: {
+      summary: updatedNote.aiSummary,
+      keyPoints: updatedNote.aiKeyPoints,
+      examTopics: updatedNote.aiTopics,
+      cached: false,
+      lastAnalyzed: updatedNote.aiAnalyzedAt
+    }
+  };
 };
 
 exports.createNote = async (noteData, authorId) => {
