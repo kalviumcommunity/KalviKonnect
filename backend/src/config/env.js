@@ -17,7 +17,10 @@ function validateEnv() {
     console.error(
       `[KalviKonnect] Copy .env.example to .env and fill in all values.`
     );
-    process.exit(1);
+    if (process.env.NODE_ENV !== 'test') {
+      process.exit(1);
+    }
+    return;
   }
   console.log("[KalviKonnect] ✅ All required environment variables present.");
 }
