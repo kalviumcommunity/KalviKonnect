@@ -35,8 +35,9 @@ model User {
   name            String             @default("User")
   password        String
   role            Role               @default(STUDENT)
-  university      University         @relation(fields: [universityId], references: [id])
-  universityId    String
+  university      University?        @relation(fields: [universityId], references: [id])
+  universityId    String? // Made optional for onboarding flow
+  batchYear       Int?
   lastActiveAt    DateTime           @default(now())
   
   // Relations

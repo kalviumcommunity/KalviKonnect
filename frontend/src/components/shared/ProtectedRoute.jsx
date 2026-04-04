@@ -18,6 +18,12 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // Check if uni selected — except for the onboarding page itself
+  if (!user.universityId && location.pathname !== '/onboarding') {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+
   if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
     return (
       <div className="min-h-screen pt-20 flex flex-col items-center justify-center bg-neutral-900">

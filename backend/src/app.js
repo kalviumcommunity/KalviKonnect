@@ -21,6 +21,8 @@ const announcementRoutes = require('./routes/announcementRoutes');
 const postRoutes = require('./routes/postRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const searchRoutes = require('./routes/searchRoutes');
+const universitiesRoutes = require('./routes/universities.routes');
+const usersRoutes = require('./routes/users.routes');
 const healthRouter = require('./routes/health.route');
 
 const app = express();
@@ -76,6 +78,8 @@ app.use('/announcements', announcementRoutes);
 app.use('/posts', postRoutes);
 app.use('/notifications', notificationRoutes);
 app.use('/search', searchRoutes);
+app.use('/universities', universitiesRoutes);
+app.use('/users', usersRoutes);
 
 // 404 handler
 app.use((req, res, next) => {
