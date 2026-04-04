@@ -4,6 +4,8 @@ validateEnv(); // Server refuses to start if any required var is missing
 
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
 const compression = require('compression');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -20,11 +22,13 @@ const healthRouter = require('./routes/health.route');
 
 const app = express();
 
-// Middleware
+// Security and Performance Middleware
+app.use(helmet());
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(compression());
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: process.env.CORS_ORIGIN || "*",
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   })
