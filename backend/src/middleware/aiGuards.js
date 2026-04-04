@@ -63,6 +63,7 @@ const aiRateLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders:   false,
+  validate: { ip: false }
 });
 
 module.exports = { validateNoteInput, validatePlacementInput, aiRateLimiter };

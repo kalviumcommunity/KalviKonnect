@@ -4,6 +4,6 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
-router.post('/', auth, upvoteController.upvote);
+router.post('/', auth, upvoteController.toggleUpvote);
 
 module.exports = router;

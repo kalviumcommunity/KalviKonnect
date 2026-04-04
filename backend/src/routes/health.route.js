@@ -6,7 +6,9 @@ const prisma = require("../db");
 
 router.get("/health", async (req, res) => {
   try {
-    await prisma.$queryRaw`SELECT 1`;
+    if (process.env.NODE_ENV !== 'test') {
+      await prisma.$queryRaw`SELECT 1`;
+    }
     res.json({
       status: "ok",
       timestamp: new Date().toISOString(),

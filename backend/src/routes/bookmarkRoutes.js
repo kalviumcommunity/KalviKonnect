@@ -4,7 +4,7 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
-router.post('/', auth, bookmarkController.createBookmark);
+router.post('/', auth, bookmarkController.toggleBookmark);
 router.get('/', auth, bookmarkController.getBookmarks);
 router.delete('/:id', auth, bookmarkController.deleteBookmark);
 
