@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -65,6 +66,7 @@ model User {
 model Post {
   id             String      @id @default(uuid())
   content        String      @db.Text
+
   author         User        @relation(fields: [authorId], references: [id])
   authorId       String
   university     University  @relation(fields: [universityId], references: [id])
@@ -99,6 +101,7 @@ model Note {
   id             String      @id @default(uuid())
   title          String
   content        String      @db.Text
+
   fileUrl        String?
   semester       Int
   visibility     Visibility  @default(UNIVERSITY_ONLY)
@@ -111,6 +114,7 @@ model Note {
 
   // AI Caching
   aiSummary      String?     @db.Text
+
   aiKeyPoints    Json?       // array of strings
   aiTopics       Json?       // array of exam topics/questions
   aiAnalyzedAt   DateTime?
@@ -135,6 +139,8 @@ model PlacementPost {
   company        String
   role           String
   content        String      @db.Text
+  fileUrl        String?
+
   rounds         Json?       // Structured round details
 
   // AI Caching
@@ -164,6 +170,7 @@ model Hackathon {
   id             String      @id @default(uuid())
   title          String
   description    String      @db.Text
+
   deadline       DateTime
   status         String      @default("OPEN") // OPEN, CLOSED, ONGOING
   
@@ -189,6 +196,8 @@ model HackathonApplication {
   userId         String
   
   status         String      @default("PENDING") // PENDING, SELECTED, REJECTED
+  portfolioLink  String?
+  resumeUrl      String?
   
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
@@ -200,6 +209,7 @@ model DiscussionThread {
   id             String      @id @default(uuid())
   title          String
   content        String      @db.Text
+
   
   // Relations
   author         User        @relation(fields: [authorId], references: [id])
@@ -220,6 +230,7 @@ model DiscussionThread {
 model DiscussionReply {
   id             String           @id @default(uuid())
   content        String           @db.Text
+
   
   // Relations
   thread         DiscussionThread @relation(fields: [threadId], references: [id])
@@ -245,6 +256,7 @@ model Announcement {
   id             String      @id @default(uuid())
   title          String
   content        String      @db.Text
+
   isSticky       Boolean     @default(false)
   visibility     Visibility  @default(UNIVERSITY_ONLY)
   
@@ -351,6 +363,7 @@ model Notification {
   type        NotificationType @default(INFO)
   title       String
   message     String           @db.Text
+
   link        String?          // e.g. /notes/123
   
   isRead      Boolean          @default(false)

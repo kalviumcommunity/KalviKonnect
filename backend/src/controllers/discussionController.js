@@ -36,3 +36,12 @@ exports.reply = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.deleteThread = async (req, res, next) => {
+  try {
+    await discussionService.deleteThread(req.params.id, req.user.userId);
+    res.status(200).json({ success: true, message: 'Thread deleted' });
+  } catch (err) {
+    next(err);
+  }
+};

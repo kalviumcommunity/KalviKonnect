@@ -11,7 +11,19 @@ export const getNoteById = async (id) => {
 };
 
 export const createNote = async (noteData) => {
-  const response = await api.post('/notes', noteData);
+  // Use FormData for file upload
+  const formData = new FormData();
+  Object.keys(noteData).forEach(key => {
+    if (key === 'tags') {
+      formData.append(key, JSON.stringify(noteData[key]));
+    } else {
+      formData.append(key, noteData[key]);
+    }
+  });
+
+  const response = await api.post('/notes', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
   return response.data;
 };
 

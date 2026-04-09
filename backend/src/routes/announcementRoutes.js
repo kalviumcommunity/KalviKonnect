@@ -7,5 +7,6 @@ const router = express.Router();
 
 router.post('/', auth, roleCheck(['CAMPUS_MANAGER']), announcementController.createAnnouncement);
 router.get('/', announcementController.getAnnouncements);
+router.delete('/:id', auth, roleCheck(['CAMPUS_MANAGER']), announcementController.deleteAnnouncement);
 
 module.exports = router;

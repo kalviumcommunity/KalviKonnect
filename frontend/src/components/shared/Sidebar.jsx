@@ -7,10 +7,13 @@ import {
   Trophy, 
   MessageSquare, 
   Megaphone,
+  Calendar,
   X
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Sidebar = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
     { name: 'Learning Resources', icon: BookOpen, path: '/notes' },
@@ -18,6 +21,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { name: 'Hackathons', icon: Trophy, path: '/hackathons' },
     { name: 'Discussions', icon: MessageSquare, path: '/discussions' },
     { name: 'Announcements', icon: Megaphone, path: '/announcements' },
+    { name: 'Calendar', icon: Calendar, path: '/calendar' },
   ];
 
   return (
@@ -77,7 +81,13 @@ const Sidebar = ({ isOpen, onClose }) => {
           <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
             <p className="text-xs font-bold text-slate-900 mb-1 uppercase tracking-wider">Upcoming</p>
             <p className="text-xs text-slate-500 mb-3">Join the next exclusive hackathon today!</p>
-            <button className="w-full py-2 bg-white border border-slate-200 hover:border-kalvium hover:text-kalvium text-xs font-bold rounded-lg transition-all shadow-sm">
+            <button 
+              onClick={() => {
+                navigate('/calendar');
+                if (window.innerWidth < 1024) onClose();
+              }}
+              className="w-full py-2 bg-white border border-slate-200 hover:border-kalvium hover:text-kalvium text-xs font-bold rounded-lg transition-all shadow-sm"
+            >
               View Calendar
             </button>
           </div>

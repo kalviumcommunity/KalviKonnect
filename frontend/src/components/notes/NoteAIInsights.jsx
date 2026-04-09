@@ -24,7 +24,7 @@ const NoteAIInsights = ({ noteId, initialData }) => {
       if (response.success) {
         setData(response.data);
       } else {
-        throw new Error(response.message || 'AI analysis failed');
+        throw new Error(response.error || 'AI analysis failed');
       }
     } catch (err) {
       console.error('AI Analysis Error:', err);

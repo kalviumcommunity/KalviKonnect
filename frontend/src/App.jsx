@@ -16,10 +16,12 @@ import PlacementsPage from './pages/Placements/PlacementsPage';
 import PlacementDetailPage from './pages/Placements/PlacementDetailPage';
 import HackathonsPage from './pages/Hackathons/HackathonsPage';
 import DiscussionsPage from './pages/Discussions/DiscussionsPage';
+import ThreadDetailPage from './pages/Discussions/ThreadDetailPage';
 import AnnouncementsPage from './pages/Announcements/AnnouncementsPage';
 import OnboardingPage from './pages/Onboarding/OnboardingPage';
 import ProfilePage from './pages/Profile/ProfilePage';
 import BookmarksPage from './pages/Bookmarks/BookmarksPage';
+import CalendarPage from './pages/Calendar/CalendarPage';
 
 function AppLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -88,6 +90,12 @@ function App() {
             </ProtectedRoute>
           } />
           
+          <Route path="/discussions/:id" element={
+            <ProtectedRoute>
+              <AppLayout><ThreadDetailPage /></AppLayout>
+            </ProtectedRoute>
+          } />
+          
           <Route path="/announcements" element={
             <ProtectedRoute>
               <AppLayout><AnnouncementsPage /></AppLayout>
@@ -97,6 +105,12 @@ function App() {
           <Route path="/bookmarks" element={
             <ProtectedRoute>
               <AppLayout><BookmarksPage /></AppLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/calendar" element={
+            <ProtectedRoute>
+              <AppLayout><CalendarPage /></AppLayout>
             </ProtectedRoute>
           } />
 

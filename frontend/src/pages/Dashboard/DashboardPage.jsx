@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import FeedTabs from '../../components/dashboard/FeedTabs';
 import PostCard from '../../components/dashboard/PostCard';
 import PostForm from '../../components/dashboard/PostForm';
@@ -7,9 +8,11 @@ import ErrorBanner from '../../components/shared/ErrorBanner';
 import EmptyState from '../../components/shared/EmptyState';
 import { useAuth } from '../../hooks/useAuth';
 import { getPosts } from '../../services/post.service';
+import { Users, Calendar, BookOpen, Trophy, Megaphone, MessageSquare } from 'lucide-react';
 
 const DashboardPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('COLLEGE');
   const [status, setStatus] = useState('idle');
   const [posts, setPosts] = useState([]);
@@ -103,14 +106,24 @@ const DashboardPage = () => {
           </h3>
           <div className="grid grid-cols-3 gap-3">
             {[
-              { name: 'Livebooks', icon: BookOpen, color: 'text-purple-500', bgColor: 'bg-purple-50' },
-              { name: 'Dojo', icon: Trophy, color: 'text-red-500', bgColor: 'bg-red-50' },
-              { name: 'Mail', icon: Megaphone, color: 'text-blue-500', bgColor: 'bg-blue-50' },
-              { name: 'Chat', icon: MessageSquare, color: 'text-orange-500', bgColor: 'bg-orange-50' },
-              { name: 'Calendar', icon: Calendar, color: 'text-emerald-500', bgColor: 'bg-emerald-50' },
-              { name: 'Support', icon: Users, color: 'text-rose-500', bgColor: 'bg-rose-50' },
+              { name: 'Livebooks', icon: BookOpen, color: 'text-purple-500', bgColor: 'bg-purple-50', path: '/notes' },
+              { name: 'Dojo', icon: Trophy, color: 'text-red-500', bgColor: 'bg-red-50', comingSoon: true },
+              { name: 'Mail', icon: Megaphone, color: 'text-blue-500', bgColor: 'bg-blue-50', comingSoon: true },
+              { name: 'Chat', icon: MessageSquare, color: 'text-orange-500', bgColor: 'bg-orange-50', comingSoon: true },
+              { name: 'Calendar', icon: Calendar, color: 'text-emerald-500', bgColor: 'bg-emerald-50', path: '/calendar' },
+              { name: 'Support', icon: Users, color: 'text-rose-500', bgColor: 'bg-rose-50', comingSoon: true },
             ].map(app => (
-              <button key={app.name} className="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-100 hover:border-kalvium/30 hover:bg-slate-50 transition-all group">
+              <button 
+                key={app.name} 
+                onClick={() => app.path && navigate(app.path)}
+                disabled={app.comingSoon}
+                className={`flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-100 transition-all group relative overflow-hidden ${app.comingSoon ? 'opacity-60 cursor-not-allowed grayscale-[0.5]' : 'hover:border-kalvium/30 hover:bg-slate-50 cursor-pointer'}`}
+              >
+                {app.comingSoon && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-white/20 backdrop-blur-[1px] z-10">
+                    <span className="text-[7px] font-black bg-slate-900 text-white px-1.5 py-0.5 rounded uppercase tracking-tighter rotate-12">Coming Soon</span>
+                  </div>
+                )}
                 <div className={`p-2.5 rounded-xl ${app.bgColor} group-hover:scale-110 transition-transform mb-2 ${app.color}`}>
                   <app.icon className="w-6 h-6" />
                 </div>

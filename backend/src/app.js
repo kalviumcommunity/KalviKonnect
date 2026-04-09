@@ -23,9 +23,17 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const universitiesRoutes = require('./routes/universities.routes');
 const usersRoutes = require('./routes/users.routes');
+const calendarRoutes = require('./routes/calendar.routes');
 const healthRouter = require('./routes/health.route');
 
+const path = require('path');
 const app = express();
+
+// Static Files - serve uploads directory
+const uploadsPath = path.join(__dirname, '../uploads');
+if (!require('fs').existsSync(uploadsPath)) require('fs').mkdirSync(uploadsPath, { recursive: true });
+app.use('/uploads', express.static(uploadsPath));
+
 
 // Security and Performance Middleware
 app.use(helmet());
@@ -33,12 +41,12 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(compression());
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    origin: true,
     credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   })
 );
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Specific Rate Limiter for AI endpoints to prevent cost spikes
 const aiRateLimiter = rateLimit({
@@ -80,6 +88,23 @@ app.use('/notifications', notificationRoutes);
 app.use('/search', searchRoutes);
 app.use('/universities', universitiesRoutes);
 app.use('/users', usersRoutes);
+app.use('/calendar', calendarRoutes);
+
+// Error Handling
+app.use((err, req, res, next) => {
+  const fs = require('fs');
+  const errorMsg = err.message || JSON.stringify(err) || 'Unknown Error';
+  const errorStack = err.stack || 'No Stack Trace';
+  
+  fs.appendFileSync('GLOBAL_ERROR.log', `[${new Date().toISOString()}] 🚨 GLOBAL ERROR: ${errorMsg}\n${errorStack}\n---\n`);
+  
+  const status = err.statusCode || err.status || 500;
+  res.status(status).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+    errors: err.errors
+  });
+});
 
 // 404 handler
 app.use((req, res, next) => {
@@ -100,7 +125,7 @@ if (process.env.NODE_ENV !== 'test') {
   socketUtil.init(server);
 
   server.listen(PORT, () => {
-    console.log(`Kalvi Connect API + Realtime running on port ${PORT}`);
+    console.log(`Kalvi Connect API (Stability V5) + Realtime running on port ${PORT}`);
   });
 
   server.on('error', (e) => {

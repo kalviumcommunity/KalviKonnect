@@ -10,7 +10,11 @@ export const applyToHackathon = async (id, portfolioLink) => {
   return response.data;
 };
 
-export const updateHiringStatus = async (hackathonId, studentId, status) => {
-  const response = await api.patch(`/hackathons/${hackathonId}/hired`, { studentId, status });
+export const updateHiringStatus = async (applicationId) => {
+  const response = await api.patch(`/hackathons/applications/${applicationId}/hire`);
+  return response.data;
+};
+export const createHackathon = async (data) => {
+  const response = await api.post('/hackathons', data);
   return response.data;
 };

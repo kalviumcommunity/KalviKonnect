@@ -21,9 +21,14 @@ exports.createPost = async (req, res, next) => {
 exports.getPosts = async (req, res, next) => {
   try {
     const { scope = 'COLLEGE', limit = 10, cursor = null } = req.query;
-    const universityId = req.user.universityId;
+    let universityId = req.user.universityId;
+    if (!universityId) {
+      const { getUserMe } = require('../services/authService');
+      const user = await getUserMe(req.user.userId);
+      universityId = user.university?.id;
+    }
 
-    if (!universityId) throw new AppError('User university not found', 400);
+    if (!universityId) throw new AppError('You must join a university to view the feed', 400);
 
     const result = await postService.getPosts(universityId, scope, limit, cursor);
     res.status(200).json({

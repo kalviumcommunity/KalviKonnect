@@ -5,12 +5,14 @@ import SkeletonCard from '../../components/shared/SkeletonCard';
 import ErrorBanner from '../../components/shared/ErrorBanner';
 import EmptyState from '../../components/shared/EmptyState';
 import Pagination from '../../components/shared/Pagination';
+import NoteForm from '../../components/notes/NoteForm';
 import { Plus, Search, Filter, BookOpen } from 'lucide-react';
 
 const NotesPage = () => {
   const { status, data, error, pagination, fetchNotes } = useNotes();
   const [searchTerm, setSearchTerm] = useState('');
   const [semester, setSemester] = useState('');
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   // Debounced fetch
   useEffect(() => {
@@ -57,7 +59,7 @@ const NotesPage = () => {
           <EmptyState 
             title="No notes found" 
             message={searchTerm || semester ? "Try adjusting your filters or search term." : "Be the first to share your knowledge with the community!"}
-            onAction={() => {}}
+            onAction={() => setIsFormOpen(true)}
             actionLabel="Upload First Note"
           />
         </div>
@@ -85,13 +87,22 @@ const NotesPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 pb-12">
+      <NoteForm 
+        isOpen={isFormOpen} 
+        onClose={() => setIsFormOpen(false)} 
+        onSuccess={() => fetchNotes({ page: 1 })} 
+      />
+      
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 font-outfit">Learning Resources</h1>
+          <h1 className="text-3xl font-bold text-slate-900 font-outfit tracking-tight">Learning <span className="text-kalvium">Resources</span></h1>
           <p className="text-slate-500 mt-1">Discover notes and resources shared by fellow Kalvians.</p>
         </div>
-        <button className="flex items-center justify-center px-6 py-3 bg-kalvium hover:bg-red-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-kalvium/20 active:scale-95">
-          <Plus className="w-5 h-5 mr-2" />
+        <button 
+          onClick={() => setIsFormOpen(true)}
+          className="flex items-center justify-center px-8 py-4 bg-kalvium hover:bg-red-600 text-white font-bold rounded-2xl transition-all shadow-xl shadow-kalvium/20 hover:scale-105 active:scale-95 group"
+        >
+          <Plus className="w-5 h-5 mr-3 group-hover:rotate-90 transition-transform" />
           Upload Note
         </button>
       </div>

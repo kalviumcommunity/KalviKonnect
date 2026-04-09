@@ -14,3 +14,12 @@ export const replyToThread = async (id, content, isBlocker = false) => {
   const response = await api.post(`/discussions/${id}/reply`, { content, isBlocker });
   return response.data;
 };
+export const createThread = async (data) => {
+  const response = await api.post('/discussions', data);
+  return response.data;
+};
+
+export const deleteThread = async (id) => {
+  const response = await api.delete(`/discussions/${id}`);
+  return response.data;
+};

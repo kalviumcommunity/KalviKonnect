@@ -8,4 +8,7 @@ export const getAnnouncements = async () => {
 export const createAnnouncement = async (announcementData) => {
   const response = await api.post('/announcements', announcementData);
   return response.data;
+};export const deleteAnnouncement = async (id) => {
+  const response = await api.delete(`/announcements/${id}`);
+  return response.data;
 };

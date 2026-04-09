@@ -14,7 +14,7 @@ export const useDiscussions = () => {
       const result = await discussionsService.getDiscussions(params);
       setState({
         status: 'success',
-        data: result.data || result.discussions || [],
+        data: result.threads || result.data || result.discussions || [],
         error: null,
       });
     } catch (error) {
