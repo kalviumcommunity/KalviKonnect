@@ -4,7 +4,7 @@ import * as notesService from '../../services/notes.service';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import ErrorBanner from '../../components/shared/ErrorBanner';
 import NoteAIInsights from '../../components/Notes/NoteAIInsights';
-import { ChevronLeft, ThumbsUp, User, Calendar, Tag, Share2, MessageSquare } from 'lucide-react';
+import { ChevronLeft, ThumbsUp, User, Calendar, Tag, Share2, MessageSquare, Sparkles, FileText, Download } from 'lucide-react';
 
 const NoteDetailPage = () => {
   const { id } = useParams();
@@ -86,6 +86,10 @@ const NoteDetailPage = () => {
       <div className="bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-sm">
         <div className="p-8 md:p-12">
           <div className="flex flex-wrap items-center gap-4 mb-8">
+            <div className="flex items-center space-x-2 px-4 py-1.5 bg-orange-50 text-orange-600 rounded-full border border-orange-100 shadow-sm animate-pulse">
+                <Sparkles size={14} />
+                <span className="text-[10px] font-black uppercase tracking-widest">Enhanced with AI</span>
+            </div>
             <span className="px-4 py-1.5 bg-red-50 text-kalvium rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border border-red-100 italic">
               {note.semester ? `Semester ${note.semester}` : 'General'}
             </span>
@@ -93,12 +97,6 @@ const NoteDetailPage = () => {
               <Calendar className="w-4 h-4 mr-2 text-kalvium" />
               {new Date(note.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
             </div>
-            {note.university && (
-              <div className="flex items-center text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-                <Tag className="w-4 h-4 mr-2 text-kalvium" />
-                {note.university}
-              </div>
-            )}
           </div>
 
           <h1 className="text-3xl md:text-5xl font-bold text-slate-900 mb-8 font-outfit tracking-tight leading-[1.1]">
@@ -136,6 +134,29 @@ const NoteDetailPage = () => {
               <p key={i} className="mb-6">{para}</p>
             ))}
           </div>
+
+          {note.fileUrl && (
+            <div className="mb-12 p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center justify-between group">
+              <div className="flex items-center">
+                 <div className="p-3 bg-kalvium/10 rounded-2xl mr-4 group-hover:bg-kalvium/20 transition-colors">
+                    <FileText className="w-6 h-6 text-kalvium" />
+                 </div>
+                 <div>
+                    <p className="text-sm font-bold text-slate-900 leading-none">Attached Resource</p>
+                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-black italic">Click to view/download material</p>
+                 </div>
+              </div>
+              <a 
+                href={note.fileUrl.startsWith('http') ? note.fileUrl : `${import.meta.env.VITE_API_URL}${note.fileUrl.startsWith('/') ? '' : '/'}${note.fileUrl}`}
+                target="_blank"
+                rel="noreferrer"
+                className="px-6 py-3 bg-slate-900 hover:bg-black text-white text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-slate-900/10 flex items-center"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Open File
+              </a>
+            </div>
+          )}
           
           <div className="bg-slate-50 p-1 rounded-[2rem]">
             <NoteAIInsights 

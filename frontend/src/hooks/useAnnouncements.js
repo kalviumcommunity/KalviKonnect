@@ -12,9 +12,11 @@ export const useAnnouncements = () => {
     setState(prev => ({ ...prev, status: 'loading', error: null }));
     try {
       const result = await announcementsService.getAnnouncements();
+      // Handle response structure { success: true, data: { announcements: [], total: 0 } }
+      const announcementsArray = result.data?.announcements || result.announcements || result.data || [];
       setState({
         status: 'success',
-        data: result.data || result.announcements || [],
+        data: Array.isArray(announcementsArray) ? announcementsArray : [],
         error: null,
       });
     } catch (error) {

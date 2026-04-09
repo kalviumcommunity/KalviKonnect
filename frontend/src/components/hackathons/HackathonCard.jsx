@@ -4,8 +4,9 @@ import { useAuth } from '../../hooks/useAuth';
 
 const HackathonCard = ({ hackathon, onApply }) => {
   const { user } = useAuth();
-  const { id, title, description, date, status, company, participantsCount, prizePool } = hackathon;
+  const { id, title, description, deadline, status, company, _count } = hackathon;
   const isOpen = status === 'OPEN' || status === 'ACTIVE' || status === 'active';
+  const participantsCount = _count?.applications || 0;
 
   return (
     <div className="group bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden hover:border-kalvium/30 transition-all shadow-sm hover:shadow-xl hover:shadow-kalvium/5 flex flex-col h-full animate-in fade-in zoom-in-95 duration-500">
@@ -39,7 +40,7 @@ const HackathonCard = ({ hackathon, onApply }) => {
         <div className="flex items-center justify-between py-4 border-y border-slate-50">
           <div className="flex items-center text-[11px] font-bold text-slate-400 uppercase tracking-widest">
             <Calendar className="w-4 h-4 mr-2 text-kalvium" />
-            {new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+          {deadline ? new Date(deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBD'}
           </div>
           <div className="flex items-center text-[11px] font-bold text-slate-400 uppercase tracking-widest">
             <Users className="w-4 h-4 mr-2 text-kalvium" />
@@ -57,7 +58,7 @@ const HackathonCard = ({ hackathon, onApply }) => {
                 : 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none border border-slate-200'
             }`}
           >
-            {isOpen ? 'Apply for Challenge' : 'Event Closed'}
+            {isOpen ? 'Register Now' : 'Event Closed'}
             {isOpen && <ChevronRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />}
           </button>
         </div>

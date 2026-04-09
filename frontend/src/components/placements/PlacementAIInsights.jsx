@@ -12,14 +12,22 @@ const PlacementAIInsights = ({ placementId, initialData }) => {
     setError(null);
     try {
       const response = await analyzePlacement(placementId);
-      if (response.success) {
+      if (response.success && response.data) {
         setData(response.data);
       } else {
-        throw new Error(response.message || 'AI analysis failed');
+        // Backend returned 200 but AI failed internally
+        setError(response.message || response.error || 'AI analysis is temporarily unavailable. Please try again shortly.');
       }
     } catch (err) {
       console.error('Placement AI Error:', err);
-      setError(err.response?.data?.message || 'AI preparation guide is temporarily unavailable.');
+      const status = err.response?.status;
+      if (status === 503) {
+        setError('🤖 AI service is temporarily unavailable. This is usually due to API quota limits. Please try again in a few minutes.');
+      } else if (status === 429) {
+        setError('⏱️ Too many requests. Please wait a minute and try again.');
+      } else {
+        setError(err.response?.data?.message || err.response?.data?.error || 'AI preparation guide is temporarily unavailable.');
+      }
     } finally {
       setLoading(false);
     }

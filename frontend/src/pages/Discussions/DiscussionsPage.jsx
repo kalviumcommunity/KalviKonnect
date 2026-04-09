@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDiscussions } from '../../hooks/useDiscussions';
 import ThreadCard from '../../components/discussions/ThreadCard';
+import ThreadForm from '../../components/discussions/ThreadForm';
 import SkeletonCard from '../../components/shared/SkeletonCard';
 import ErrorBanner from '../../components/shared/ErrorBanner';
 import EmptyState from '../../components/shared/EmptyState';
@@ -8,6 +9,7 @@ import { MessageSquarePlus, Search } from 'lucide-react';
 
 const DiscussionsPage = () => {
   const { status, data, error, fetchDiscussions } = useDiscussions();
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   useEffect(() => {
     fetchDiscussions();
@@ -34,11 +36,11 @@ const DiscussionsPage = () => {
 
     if (status === 'success' && (!data || data.length === 0)) {
       return (
-        <div className="mt-12 bg-white rounded-[2.5rem] p-16 border border-dashed border-slate-300 text-center">
+        <div className="mt-12">
           <EmptyState 
             title="No discussions started" 
             message="Have a question or a topic to share? Start the first thread and get help from the community!"
-            onAction={() => {}}
+            onAction={() => setIsFormOpen(true)}
             actionLabel="Start First Discussion"
           />
         </div>
@@ -46,9 +48,9 @@ const DiscussionsPage = () => {
     }
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in slide-in-from-bottom delay-150 duration-500">
         {data.map(thread => (
-          <ThreadCard key={thread.id} thread={thread} />
+          <ThreadCard key={thread.id} thread={thread} onDelete={() => fetchDiscussions()} />
         ))}
       </div>
     );
@@ -56,12 +58,21 @@ const DiscussionsPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in slide-in-from-right duration-700 pb-12">
+      <ThreadForm 
+        isOpen={isFormOpen} 
+        onClose={() => setIsFormOpen(false)} 
+        onSuccess={() => fetchDiscussions()} 
+      />
+      
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h1 className="text-4xl font-bold text-slate-900 font-outfit tracking-tight">Community <span className="text-kalvium">Discussions</span></h1>
           <p className="text-slate-500 mt-2 text-lg">Ask questions, share ideas, and connect with other Kalvians.</p>
         </div>
-        <button className="flex items-center justify-center px-8 py-4 bg-kalvium hover:bg-red-600 text-white font-bold rounded-2xl transition-all shadow-xl shadow-kalvium/20 active:scale-95 group">
+        <button 
+          onClick={() => setIsFormOpen(true)}
+          className="flex items-center justify-center px-8 py-4 bg-kalvium hover:bg-red-600 text-white font-bold rounded-2xl transition-all shadow-xl shadow-kalvium/20 active:scale-95 group"
+        >
           <MessageSquarePlus className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
           Start New Thread
         </button>

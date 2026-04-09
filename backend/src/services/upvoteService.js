@@ -1,3 +1,5 @@
+const prisma = require('../db');
+const AppError = require('../utils/AppError');
 const notificationService = require('./notificationService');
 
 exports.toggleUpvote = async (userId, target) => {

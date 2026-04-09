@@ -3,10 +3,12 @@ const noteController = require('../controllers/notes.controller');
 const auth = require('../middleware/auth');
 const { validateNoteInput, aiRateLimiter } = require("../middleware/aiGuards");
 
+const upload = require('../middleware/upload');
+
 const router = express.Router();
 
 router.post('/:id/ai/analyze', auth, aiRateLimiter, noteController.analyzeNote);
-router.post('/', auth, noteController.createNote);
+router.post('/', auth, upload.single('file'), noteController.createNote);
 router.get('/', noteController.getNotes);
 router.get('/:id', noteController.getNoteById);
 router.put('/:id', auth, noteController.updateNote);

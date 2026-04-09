@@ -1,4 +1,10 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Building2, ChevronLeft, ThumbsUp, User, Share2, Download } from 'lucide-react';
 import * as placementsService from '../../services/placements.service';
+import PlacementAIInsights from '../../components/placements/PlacementAIInsights';
+import ErrorBanner from '../../components/shared/ErrorBanner';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
 
 const PlacementDetailPage = () => {
   const { id } = useParams();
