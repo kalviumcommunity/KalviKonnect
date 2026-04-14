@@ -49,9 +49,11 @@ exports.getHackathons = async (requestedStatus) => {
       where,
       orderBy: { createdAt: 'desc' },
       include: {
-        _count: { select: { applications: true } }
+        _count: { select: { applications: true } },
+        author: { select: { id: true } } // Added so frontend can identify owner
       }
     });
+
   });
 };
 
@@ -63,6 +65,11 @@ exports.applyToHackathon = async (hackathonId, userId, role, data) => {
 
     const hackathon = await prisma.hackathon.findUnique({ where: { id: hackathonId } });
     if (!hackathon) throw new AppError('Opportunity not found', 404);
+
+    // CRITICAL: Creator cannot apply to their own hackathon
+    if (hackathon.authorId === userId) {
+      throw new AppError('The project founder/creator cannot register as a teammate for their own hackathon.', 400);
+    }
     
     const currentStatus = hackathon.status.toLowerCase();
     if (currentStatus !== 'open' && currentStatus !== 'active') {
@@ -71,10 +78,17 @@ exports.applyToHackathon = async (hackathonId, userId, role, data) => {
     
     if (new Date(hackathon.deadline) < new Date()) throw new AppError('Deadline has passed', 400);
 
+    if (!data.fullName) {
+      throw new AppError('Full name is required for registration.', 400);
+    }
+
     try {
       return await prisma.hackathonApplication.create({
         data: {
-          portfolioLink: data.portfolioLink,
+          fullName: data.fullName,
+          githubLink: data.githubLink || null,
+          linkedinLink: data.linkedinLink || null,
+          portfolioLink: data.portfolioLink || data.githubLink || null,
           hackathon: { connect: { id: hackathonId } },
           user: { connect: { id: userId } }
         }
@@ -85,6 +99,7 @@ exports.applyToHackathon = async (hackathonId, userId, role, data) => {
     }
   });
 };
+
 
 exports.getApplicants = async (hackathonId, userId, role) => {
   return await prisma.$withRetry(async () => {
@@ -127,3 +142,39 @@ exports.hireApplicant = async (applicationId, userId, role) => {
     });
   });
 };
+
+exports.updateHackathonStatus = async (hackathonId, userId, role, status) => {
+  return await prisma.$withRetry(async () => {
+    const hackathon = await prisma.hackathon.findUnique({ where: { id: hackathonId } });
+    if (!hackathon) throw new AppError('Opportunity not found', 404);
+
+    // Only creator or Campus Manager can update status
+    if (hackathon.authorId !== userId && role !== 'CAMPUS_MANAGER') {
+      throw new AppError('Unauthorized to update opportunity status', 403);
+    }
+
+    return await prisma.hackathon.update({
+      where: { id: hackathonId },
+      data: { status: status.toUpperCase() }
+    });
+  });
+};
+
+exports.deleteHackathon = async (hackathonId, userId) => {
+  return await prisma.$withRetry(async () => {
+    const hackathon = await prisma.hackathon.findUnique({ where: { id: hackathonId } });
+    if (!hackathon) throw new AppError('Opportunity not found', 404);
+    
+    // Ownership check
+    if (hackathon.authorId !== userId) {
+      throw new AppError('You do not have permission to delete this opportunity', 403);
+    }
+    
+    // Delete applications first, then hackathon
+    await prisma.hackathonApplication.deleteMany({ where: { hackathonId } });
+    return await prisma.hackathon.delete({ where: { id: hackathonId } });
+  });
+};
+
+
+

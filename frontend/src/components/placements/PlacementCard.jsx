@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { ThumbsUp, User, Building2, Briefcase, View, Download, Trash2 } from 'lucide-react';
+import { ThumbsUp, User, Building2, Briefcase, View, Download, Trash2, ExternalLink } from 'lucide-react';
+
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { deletePlacement } from '../../services/placements.service';
 
 const PlacementCard = ({ placement, onDelete }) => {
   const { user } = useAuth();
-  const { id, _id, company, role, content, author, upvoteCount, createdAt, fileUrl } = placement;
+  const { id, _id, company, role, content, author, upvoteCount, createdAt, fileUrls } = placement;
+
   const placementId = id || _id;
   const [deleting, setDeleting] = useState(false);
 
-  const isOwner = user?.userId === author?.id;
+  const isOwner = (user?.id || user?.userId) === author?.id;
+
 
   const handleDelete = async (e) => {
     e.preventDefault();
@@ -59,17 +62,27 @@ const PlacementCard = ({ placement, onDelete }) => {
         "{content}"
       </p>
 
-      {fileUrl && (
-          <a 
-            href={`${import.meta.env.VITE_API_URL}${fileUrl.startsWith('/') ? '' : '/'}${fileUrl}`} 
-            target="_blank" 
-            rel="noreferrer"
-            className="flex items-center justify-center w-full py-3.5 bg-slate-900 hover:bg-black text-white text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-slate-900/10 mb-8 active:scale-95"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            View Story Proof
-          </a>
+      {placement.fileUrls && placement.fileUrls.length > 0 && (
+        <div className="space-y-2 mb-8 relative z-10">
+          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">Experience Assets ({placement.fileUrls.length})</p>
+          {placement.fileUrls.map((url, idx) => (
+            <a 
+              key={idx}
+              href={url} 
+              target="_blank" 
+              rel="noreferrer"
+              className="flex items-center justify-between w-full p-4 bg-slate-900 hover:bg-black text-white text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-slate-900/10 group/link active:scale-95"
+            >
+              <div className="flex items-center">
+                <Download className="w-4 h-4 mr-2" />
+                <span>Supporting Doc #{idx + 1}</span>
+              </div>
+              <ExternalLink className="w-4 h-4 text-kalvium" />
+            </a>
+          ))}
+        </div>
       )}
+
 
       <div className="pt-6 border-t border-slate-50 mt-auto relative z-10">
         <div className="flex items-center justify-between">

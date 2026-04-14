@@ -7,21 +7,41 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
  */
 const generateResponse = async (prompt, systemMsg = 'You are a helpful academic assistant for KalviKonnect.', fileParts = []) => {
   const MODELS = [
-    'gemini-3.0-flash', 
-    'gemini-2.5-flash'
+    'gemini-3.0-flash',
+    'gemini-3.0-pro',
+    'gemini-3-flash',
+    'gemini-3-pro',
+    'gemini-2.0-flash',
+    'gemini-2.0-pro',
+    'gemini-1.5-flash',
+    'gemini-1.5-pro'
   ];
   const MAX_RETRIES = 2;
+
+
+
+
 
   for (const modelName of MODELS) {
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
-        const model = genAI.getGenerativeModel({
-          model: modelName,
-          systemInstruction: systemMsg
-        });
+        const modelOptions = { model: modelName };
+        let finalPrompt = prompt;
+
+        // Modern models support systemInstruction in the config
+        if (modelName.match(/1\.5|2\.[05]|3\.[05]|flash|pro/)) {
+          modelOptions.systemInstruction = systemMsg;
+        } else {
+          finalPrompt = `${systemMsg}\n\n${prompt}`;
+        }
+
+
+
+        const model = genAI.getGenerativeModel(modelOptions);
 
         // Combined data for multimodal: prompt + any binary parts
-        const combinedContent = fileParts.length > 0 ? [prompt, ...fileParts] : prompt;
+        const combinedContent = fileParts.length > 0 ? [finalPrompt, ...fileParts] : finalPrompt;
+
         const result = await model.generateContent(combinedContent);
         
         const response = await result.response;

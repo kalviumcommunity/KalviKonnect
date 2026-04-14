@@ -8,8 +8,9 @@
  * @param {object} note - The note object containing title and content.
  */
 exports.buildNoteSummaryPrompt = (note) => ({
-  systemMsg: "You are an expert academic tutor for Kalvium students. Your goal is to analyze study notes and return structured JSON summaries.",
-  userPrompt: `Analyze the following study note titled "${note.title}".
+  systemMsg: "You are an expert academic tutor. Your goal is to analyze study notes (from text OR attached images/PDFs) and return structured JSON summaries.",
+  userPrompt: `Analyze the study note titled "${note.title}".
+IMPORTANT: If the note contains text below, use it. If there is an attached file (PDF/Image), analyze its content as well.
 Return exactly this JSON format (no markdown, no code fences):
 {
   "summary": "3-4 sentences concise summary of the key concepts.",
@@ -17,8 +18,8 @@ Return exactly this JSON format (no markdown, no code fences):
   "examTopics": ["topic 1", "likely question 1", "topic 2", "likely question 2"]
 }
 
-CONTENT:
-${note.content.substring(0, 3000)}`
+TEXT CONTENT:
+${note.content ? note.content.substring(0, 3000) : "No text content provided. Please analyze based on the attached file if available."}`
 });
 
 /**
@@ -28,8 +29,9 @@ ${note.content.substring(0, 3000)}`
  * @param {string} role - Target role.
  */
 exports.buildPlacementStructurePrompt = (rawText, company, role) => ({
-  systemMsg: "You are a senior career advisor specialized in tech placement preparation. Your goal is to turn raw student descriptions into structured interview guides.",
-  userPrompt: `Analyze this placement experience for the role of ${role} at ${company}.
+  systemMsg: "You are a tech career expert. Your goal is to turn raw student descriptions or uploaded documents into structured interview guides.",
+  userPrompt: `Analyze this placement experience for ${role} at ${company}.
+IMPORTANT: Use the text below AND look at any attached files (like screenshots or PDFs of interview rounds) to provide a complete breakdown.
 Return exactly this JSON format (no markdown, no code fences):
 {
   "roundBreakdown": [
@@ -41,9 +43,10 @@ Return exactly this JSON format (no markdown, no code fences):
   ]
 }
 
-RAW EXPERIENCE:
-${rawText.substring(0, 2500)}`
+RAW EXPERIENCE TEXT:
+${rawText ? rawText.substring(0, 2500) : "No text content provided. Please analyze based on the attached file if available."}`
 });
+
 
 /**
  * Helper to safely parse AI JSON responses.

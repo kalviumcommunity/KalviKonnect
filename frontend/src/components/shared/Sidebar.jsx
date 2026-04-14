@@ -35,8 +35,10 @@ const Sidebar = ({ isOpen, onClose }) => {
       )}
 
       {/* Sidebar Content */}
-      <aside className={`fixed lg:static inset-y-0 left-0 w-64 bg-white border-r border-slate-200 z-50 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200">
+      <aside className={`fixed lg:sticky top-0 h-screen inset-y-0 left-0 w-64 bg-white border-r border-slate-200 z-50 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+        <div className="h-full flex flex-col">
+          <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200 shrink-0">
+
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded flex items-center justify-center">
               <img src="/logo.jpeg" alt="Kalvium" className="w-full h-full object-contain" />
@@ -51,7 +53,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        <nav className="p-4 space-y-1">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => (
             <NavLink
               key={item.name}
@@ -77,7 +79,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           ))}
         </nav>
 
-        <div className="absolute bottom-0 w-full p-4 border-t border-slate-200">
+        <div className="p-4 border-t border-slate-200 shrink-0">
           <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
             <p className="text-xs font-bold text-slate-900 mb-1 uppercase tracking-wider">Upcoming</p>
             <p className="text-xs text-slate-500 mb-3">Join the next exclusive hackathon today!</p>
@@ -92,7 +94,9 @@ const Sidebar = ({ isOpen, onClose }) => {
             </button>
           </div>
         </div>
+        </div>
       </aside>
+
     </>
   );
 };

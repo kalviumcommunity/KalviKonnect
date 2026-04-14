@@ -5,12 +5,14 @@ import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
 
 const NoteCard = ({ note, onDelete }) => {
-  const { id, _id, title, content, description, semester, author, upvoteCount, createdAt, fileUrl } = note;
+  const { id, _id, title, content, description, semester, author, upvoteCount, createdAt, fileUrls } = note;
+
   const noteId = id || _id;
   const displayDescription = content || description || '';
   const { user } = useAuth();
   const [deleting, setDeleting] = useState(false);
-  const isOwner = user?.userId === author?.id;
+  const isOwner = (user?.id || user?.userId) === author?.id;
+
 
   const handleDelete = async (e) => {
     e.preventDefault();
@@ -62,17 +64,27 @@ const NoteCard = ({ note, onDelete }) => {
         {displayDescription}
       </p>
 
-      {fileUrl && (
-          <a 
-            href={fileUrl.startsWith('http') ? fileUrl : `${import.meta.env.VITE_API_URL}${fileUrl.startsWith('/') ? '' : '/'}${fileUrl}`} 
-            target="_blank" 
-            rel="noreferrer"
-            className="flex items-center justify-center w-full py-3 bg-kalvium/5 hover:bg-kalvium/10 text-kalvium text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all border border-kalvium/10 mb-6"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            View Attachment
-          </a>
+      {note.fileUrls && note.fileUrls.length > 0 && (
+        <div className="space-y-2 mb-6">
+          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">Resources ({note.fileUrls.length})</p>
+          {note.fileUrls.map((url, idx) => (
+            <a 
+              key={idx}
+              href={url} 
+              target="_blank" 
+              rel="noreferrer"
+              className="flex items-center justify-between w-full p-3 bg-kalvium/5 hover:bg-kalvium hover:text-white text-kalvium text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-kalvium/10 group/link"
+            >
+              <div className="flex items-center">
+                <Download className="w-3.5 h-3.5 mr-2" />
+                <span>Resource #{idx + 1}</span>
+              </div>
+              <ExternalLink className="w-3 h-3 opacity-50 group-hover/link:opacity-100" />
+            </a>
+          ))}
+        </div>
       )}
+
 
       <div className="pt-4 border-t border-slate-50 mt-auto">
         <div className="flex items-center justify-between">
@@ -88,13 +100,15 @@ const NoteCard = ({ note, onDelete }) => {
               <ThumbsUp className="w-4 h-4 mr-1.5 group-hover/vote:text-kalvium transition-colors" />
               <span className="text-xs font-bold">{upvoteCount || 0}</span>
             </div>
-            <Link 
+            {/* Commented out AI Study Plan as per request */}
+            {/* <Link 
               to={`/notes/${noteId}`}
               className="px-4 py-2 bg-slate-900 hover:bg-black text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-slate-900/10 flex items-center group/ai"
             >
               <Sparkles className="w-3.5 h-3.5 mr-2 text-orange-400 group-hover/ai:rotate-12 transition-transform" />
               AI Study Plan
-            </Link>
+            </Link> */}
+
             <Link 
               to={`/notes/${noteId}`}
               className="p-2 hover:bg-kalvium/10 rounded-xl text-slate-400 hover:text-kalvium transition-all border border-slate-200"

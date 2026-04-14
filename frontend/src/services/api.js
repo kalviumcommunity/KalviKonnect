@@ -9,15 +9,21 @@ const api = axios.create({
   },
 });
 
-// Request Interceptor: Attach Token
+// Request Interceptor: Attach Token (Protected against header leaks)
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
-    if (token) {
+    
+    // Only attach token to internal API requests
+    // (A relative URL like '/notes' or a URL starting with API_BASE_URL)
+    const isInternalRequest = !config.url.startsWith('http') || config.url.startsWith(API_BASE_URL);
+
+    if (token && isInternalRequest) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
+
   (error) => Promise.reject(error)
 );
 

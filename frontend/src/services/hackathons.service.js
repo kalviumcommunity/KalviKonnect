@@ -5,10 +5,11 @@ export const getHackathons = async (params) => {
   return response.data;
 };
 
-export const applyToHackathon = async (id, portfolioLink) => {
-  const response = await api.post(`/hackathons/${id}/apply`, { portfolioLink });
+export const applyToHackathon = async (id, data) => {
+  const response = await api.post(`/hackathons/${id}/apply`, data);
   return response.data;
 };
+
 
 export const updateHiringStatus = async (applicationId) => {
   const response = await api.patch(`/hackathons/applications/${applicationId}/hire`);
@@ -16,5 +17,9 @@ export const updateHiringStatus = async (applicationId) => {
 };
 export const createHackathon = async (data) => {
   const response = await api.post('/hackathons', data);
+  return response.data;
+};
+export const deleteHackathon = async (id) => {
+  const response = await api.delete(`/hackathons/${id}`);
   return response.data;
 };

@@ -90,7 +90,8 @@ const ThreadDetailPage = () => {
       <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm">
         <div className="flex items-start justify-between gap-4 mb-4">
           <h1 className="text-2xl font-bold text-slate-900 font-outfit">{thread?.title}</h1>
-          {user?.userId === thread?.author?.id && (
+          {(user?.id || user?.userId) === thread?.author?.id && (
+
             <button
               onClick={handleDelete}
               disabled={deleting}

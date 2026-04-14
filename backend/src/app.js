@@ -26,6 +26,8 @@ const usersRoutes = require('./routes/users.routes');
 const calendarRoutes = require('./routes/calendar.routes');
 const healthRouter = require('./routes/health.route');
 
+const http = require('http');
+const socketUtil = require('./utils/socket');
 const path = require('path');
 const app = express();
 
@@ -48,19 +50,6 @@ app.use(
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Specific Rate Limiter for AI endpoints to prevent cost spikes
-const aiRateLimiter = rateLimit({
-  windowMs: 60 * 1000,    // 1 minute
-  max: 10,                // 10 AI requests per minute per IP
-  message: { 
-    error: true, 
-    message: "AI analysis limit reached. Please wait one minute.", 
-    statusCode: 429 
-  }
-});
-
-const PORT = process.env.PORT || 3000;
-
 // Env Validation: Server refuses to start if core keys are missing
 const requiredEnv = ["DATABASE_URL", "JWT_SECRET", "GEMINI_API_KEY"];
 requiredEnv.forEach(key => {
@@ -70,14 +59,13 @@ requiredEnv.forEach(key => {
   }
 });
 
+const PORT = process.env.PORT || 3000;
+
 // Routes
 app.use("/", healthRouter);
 app.use('/auth', authRoutes);
 app.use('/notes', noteRoutes);
-// Apply AI rate limiter to AI-specific sub-routes
-app.use('/notes/:id/ai', aiRateLimiter);
 app.use('/placements', placementRoutes);
-app.use('/placements/:id/ai', aiRateLimiter);
 app.use('/hackathons', hackathonRoutes);
 app.use('/discussions', discussionRoutes);
 app.use('/upvotes', upvoteRoutes);
@@ -90,30 +78,11 @@ app.use('/universities', universitiesRoutes);
 app.use('/users', usersRoutes);
 app.use('/calendar', calendarRoutes);
 
-// Error Handling
-app.use((err, req, res, next) => {
-  const fs = require('fs');
-  const errorMsg = err.message || JSON.stringify(err) || 'Unknown Error';
-  const errorStack = err.stack || 'No Stack Trace';
-  
-  fs.appendFileSync('GLOBAL_ERROR.log', `[${new Date().toISOString()}] 🚨 GLOBAL ERROR: ${errorMsg}\n${errorStack}\n---\n`);
-  
-  const status = err.statusCode || err.status || 500;
-  res.status(status).json({
-    success: false,
-    message: err.message || 'Internal Server Error',
-    errors: err.errors
-  });
-});
-
 // 404 handler
 app.use((req, res, next) => {
   const AppError = require('./utils/AppError');
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
-
-const http = require('http');
-const socketUtil = require('./utils/socket');
 
 // Centralized Error Handling
 app.use(errorHandler);
@@ -127,6 +96,7 @@ if (process.env.NODE_ENV !== 'test') {
   server.listen(PORT, () => {
     console.log(`Kalvi Connect API (Stability V5) + Realtime running on port ${PORT}`);
   });
+
 
   server.on('error', (e) => {
     console.error("Server error:", e);
