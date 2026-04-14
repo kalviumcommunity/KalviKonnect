@@ -1,67 +1,78 @@
-# 🎓 Kalvi Connect
+# Project KalviKonnect: Strategic Knowledge Exchange Platform
 
-**Kalvi Connect** is a centralized knowledge-sharing platform exclusively designed for Kalvium students. It serves as a community hub for sharing notes, placement experiences, hackathon opportunities, and career-focused discussions.
+## 1. Project Concept and Strategic Vision
+KalviKonnect is an enterprise-grade social collaboration platform engineered specifically for the Kalvium academic ecosystem. The primary objective of the project is to eliminate information fragmentation by providing a unified, secure, and high-performance environment where students, mentors, and campus managers can exchange critical professional and academic intelligence.
+
+In professional environments, knowledge silos are a significant barrier to growth. KalviKonnect addresses this by centralizing high-value data—ranging from curated semester notes to firsthand placement narratives—into a single, searchable repository. This ensures that the collective experience of the community is preserved and leveraged for the benefit of all members.
+
+## 2. Final Deployment Feature Set
+
+| Module | Purpose | Key Functionality |
+| :--- | :--- | :--- |
+| **Learning Resource Vault** | Centralization of academic materials | Support for multi-link academic bundles (Google Drive integration), semester-based indexing, and peer-to-peer sharing. |
+| **Placement Intelligence** | Competitive preparation repository | Archival of interview narratives, round-by-round breaks, and supporting assets with multiple external document links. |
+| **Squad Foundation** | Opportunity and Hackathon management | Strategic opportunity creation with teammate recruitment, registration validation (Full Name/GitHub/LinkedIn), and founder approval. |
+| **Campus Pulse** | Official Broadcasting | Verified official announcements and priority academic news management with a dedicated high-fidelity bulletin board. |
+| **Broadcast Feed** | Unified Network Activity | Real-time feed for network-wide broadcasts, including peer-to-peer technical updates and authoritative deletion controls. |
+| **Discussion Framework** | Problem-solving exchange | Threaded technical discussions with blocker status indicators and community-driven solution validation. |
+
+## 3. Personnel Access and Governance
+KalviKonnect implements a rigorous Role-Based Access Control (RBAC) model to ensure data integrity and organizational hierarchy.
+
+| Role | Access Level | Responsibilities |
+| :--- | :--- | :--- |
+| **Campus Manager** | Administrative | Systems oversight, broadcasting of institutional announcements, and opportunity management. |
+| **Mentor** | Expert | Professional guidance, content validation, and student mentorship focus. |
+| **Student** | Collaborative | Resource contribution, peer-to-peer engagement, and teammate application management. |
+
+## 4. Technical Architecture Specifications
+
+### Frontend Engineering
+The user interface is architected for high fidelity and responsiveness:
+- **Framework**: React.js 18 (Functional Components).
+- **Navigation**: Fixed-viewport Sidebar navigation for persistent access during content interaction.
+- **Visual Standards**: Custom CSS implementation following modern typography and high-density information display guidelines.
+
+### Backend Infrastructure
+The server-side ecosystem is designed for scalability and transactional reliability:
+- **Environment**: Node.js with the Express framework.
+- **ORM**: Prisma Object-Relational Mapper.
+- **Database Engine**: PostgreSQL (Provisioned via Neon Serverless), optimized for low-latency query execution.
+- **Data Model**: Structured PostgreSQL schema with cascaded relations for integrity protection.
+
+## 5. Security and Data Governance
+The platform adheres to stringent security protocols to ensure the confidentiality and authenticity of community data:
+- **Authentication**: Stateless JSON Web Token (JWT) implementation with secure lifecycle management.
+- **Authoritative Deletion**: Implementation of ownership-based authorization, ensuring only the original content creator can perform destructive operations.
+- **Resource Integrity**: Shift to a link-based external asset model (e.g., Google Drive) to ensure file availability without compromising local server storage limits.
+
+## 6. Implementation and Deployment Guide
+
+### Environment Configuration
+The system requires the following parameters in a standardized `.env` file within the `backend/` directory:
+- `DATABASE_URL`: URI for the PostgreSQL production instance.
+- `JWT_SECRET`: System-level entropy key for token signing.
+- `CORS_ORIGIN`: White-listed origin for frontend-backend cross-communication.
+
+### Initialization Sequence
+To deploy the infrastructure:
+
+1. **Database Synchronization**:
+   ```bash
+   npx prisma db push
+   ```
+
+2. **Backend Execution**:
+   ```bash
+   cd backend
+   npm run start
+   ```
+
+3. **Frontend Execution**:
+   ```bash
+   cd frontend
+   npm run dev
+   ```
 
 ---
-
-## 🔐 Auth & Security
-- **JWT Authentication**: Secure stateless auth with 7-day token expiry.
-- **Role-Based Access Control (RBAC)**: Specific endpoints restricted to `Campus Manager`, `Student`, or `Mentor`.
-- **Ownership Verification**: Backend re-validates that only the original author can edit or delete a post.
-- **Password Security**: Bcrypt (12 rounds) used for all hashing.
-
----
-
-## 🚀 Performance
-- **Pagination**: Every list endpoint is paginated (default 10, max 50).
-- **Caching**: `max-age=60` on public feeds and **ETags** on private data like bookmarks.
-- **Prisma Transactions**: Atomic updates for `upvoteCount` and `replyCount`.
-
----
-
-## ⚙️ How to Run Locally
-
-### 1. Prerequisites
-- Node.js installed
-- PostgreSQL database (or Neon/Render URL)
-
-### 2. Environment Variables
-Create a `.env` in the `backend/` folder with:
-```env
-PORT=5000
-DATABASE_URL="your_postgresql_url"
-JWT_SECRET="your_secure_secret"
-CORS_ORIGIN="http://localhost:5173"
-```
-
-### 3. Start Backend
-```bash
-cd backend
-npm install
-npx prisma db push # Sync schema
-npm run dev
-```
-
----
-
-## 📦 Project Structure Docs
-- [API Documentation](file:///Users/sriman/Developer/Projects/forge%20program%20/kalvikonnect/KalviKonnect/Docs/API_DOCS.md)
-- [Auth Flow & RBAC](file:///Users/sriman/Developer/Projects/forge%20program%20/kalvikonnect/KalviKonnect/Docs/AUTH_FLOW.md)
-- [Security implementation](file:///Users/sriman/Developer/Projects/forge%20program%20/kalvikonnect/KalviKonnect/Docs/SECURITY_NOTES.md)
-
-## Running Costs
-
-KalviKonnect uses OpenRouter with openai/gpt-4o-mini for AI features.
-Pricing: ~$0.15 per million input tokens, ~$0.60 per million output tokens.
-
-Per-Request Estimate (Note Summarizer):
-- Average input: ~800 tokens (prompt + note content)
-- Average output: ~150 tokens
-- Cost per request: (800/1,000,000 x $0.15) + (150/1,000,000 x $0.60) = ~$0.00012
-
-Monthly Cost at Scale:
-- 200 students x 5 summaries/week = ~4,000 requests/month = ~$0.48
-- 200 students x 20 summaries/week = ~16,000 requests/month = ~$1.92
-- 500 students x 20 summaries/week = ~40,000 requests/month = ~$4.80
-
-Token usage is logged on every AI call in Render logs under event: ai_token_usage.
+*Note: This project is maintained as a proprietary knowledge exchange application within the Kalvium ecosystem.*

@@ -2,8 +2,7 @@ const prisma = require('../db');
 const AppError = require('../utils/AppError');
 const { generateResponse } = require("./aiService");
 const { buildNoteSummaryPrompt, parseAIJson } = require("../utils/promptBuilder");
-const axios = require('axios');
-const pdf = require('pdf-parse');
+const { prepareMultimodalData } = require("../utils/aiUtils");
 
 exports.analyzeNoteWithAI = async (noteId) => {
   return await prisma.$withRetry(async () => {
@@ -13,7 +12,7 @@ exports.analyzeNoteWithAI = async (noteId) => {
         id: true, 
         title: true, 
         content: true,
-        fileUrl: true,
+        fileUrls: true,
         aiSummary: true,
         aiKeyPoints: true,
         aiTopics: true,
@@ -22,42 +21,6 @@ exports.analyzeNoteWithAI = async (noteId) => {
     });
 
     if (!note) throw new AppError("Note not found", 404);
-
-    let analysisContent = note.content || "";
-    const fileParts = [];
-
-    // Multimodal Handling: If there is an associated file, feed it to Gemini Vision
-    if (note.fileUrl) {
-      console.log(`[AI] Multimodal file detected for note ${noteId}. Sending to Gemini...`);
-      try {
-        const fileResponse = await axios.get(note.fileUrl, { responseType: 'arraybuffer' });
-        const buffer = fileResponse.data;
-        const contentType = fileResponse.headers['content-type'] || 'application/pdf';
-        
-        // Add to fileParts for Multimodal analysis
-        fileParts.push({
-          inlineData: {
-            data: Buffer.from(buffer).toString('base64'),
-            mimeType: contentType
-          }
-        });
-
-        // Also extract text for PDFs as a fallback/enhancement for the prompt
-        if (contentType.includes('pdf')) {
-          const pdfData = await pdf(buffer);
-          if (pdfData.text && pdfData.text.length > 50) {
-            analysisContent = `${analysisContent}\n\n[EXTRACTED TEXT]: ${pdfData.text.slice(0, 5000)}`;
-          }
-        }
-      } catch (err) {
-        console.error(`[AI MULTIMODAL ERROR] Failed to process file: ${err.message}`);
-      }
-    }
-
-    // Fallback if no content at all
-    if (!analysisContent.trim() && fileParts.length === 0) {
-      analysisContent = `Resource Title: ${note.title}. Please analyze based on the title as no other content is available.`;
-    }
 
     // Cache Check: Use cached results if analyzed within last 24 hours
     const CACHE_LIMIT = 24 * 60 * 60 * 1000; // 24 hours in ms
@@ -76,6 +39,20 @@ exports.analyzeNoteWithAI = async (noteId) => {
         }
       };
     }
+
+    // Process first file if present (Multimodal)
+    const { fileParts, extractedText } = await prepareMultimodalData(note.fileUrls[0]);
+    
+    let analysisContent = note.content || "";
+    if (extractedText) {
+      analysisContent = `${analysisContent}\n\n[ATTACHED FILE CONTENT]:\n${extractedText}`;
+    }
+
+    // Fallback if no content at all
+    if (!analysisContent.trim() && fileParts.length === 0) {
+      analysisContent = `Resource Title: ${note.title}. Please analyze based on the title as no other content is available.`;
+    }
+
 
     // No valid cache -> Run Gemini Analysis (Multimodal)
     const { systemMsg, userPrompt } = buildNoteSummaryPrompt({ ...note, content: analysisContent });
@@ -115,7 +92,7 @@ exports.analyzeNoteWithAI = async (noteId) => {
 exports.createNote = async (noteData, authorId) => {
   return await prisma.$withRetry(async () => {
     console.log('[DEBUG] createNote called with:', { ...noteData, authorId });
-    const { title, content, semester, universityId, tags, fileUrl } = noteData;
+    const { title, content, semester, universityId, tags, fileUrls } = noteData;
 
     // Bulletproof Semester (1-8)
     const safeSemester = parseInt(semester) || 1;
@@ -142,7 +119,7 @@ exports.createNote = async (noteData, authorId) => {
           title,
           content,
           semester: safeSemester,
-          fileUrl: fileUrl || null,
+          fileUrls: fileUrls || [],
           university: { connect: { id: universityId } },
           author: { connect: { id: authorId } },
           tags: {
@@ -197,7 +174,7 @@ exports.getNotes = async (query) => {
           id: true,
           title: true,
           content: true,
-          fileUrl: true,
+          fileUrls: true,
           semester: true,
           upvoteCount: true,
           visibility: true,

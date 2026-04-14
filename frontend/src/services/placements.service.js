@@ -11,22 +11,17 @@ export const getPlacementById = async (id) => {
 };
 
 export const analyzePlacement = async (id) => {
-  const response = await api.post(`/placements/${id}/ai/analyze`);
-  return response.data;
+  // Commented out AI Analysis as per request
+  return { success: false, message: "AI Analysis is currently disabled." };
+  // const response = await api.post(`/placements/${id}/ai/analyze`);
+  // return response.data;
 };
-export const createPlacement = async (data) => {
-  const formData = new FormData();
-  Object.keys(data).forEach(key => {
-    if (data[key] !== undefined && data[key] !== null) {
-      formData.append(key, data[key]);
-    }
-  });
 
-  const response = await api.post('/placements', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  });
+export const createPlacement = async (data) => {
+  const response = await api.post('/placements', data);
   return response.data;
 };
+
 
 export const deletePlacement = async (id) => {
   const response = await api.delete(`/placements/${id}`);

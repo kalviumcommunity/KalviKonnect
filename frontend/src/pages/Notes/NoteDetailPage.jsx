@@ -13,6 +13,20 @@ const NoteDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [upvoting, setUpvoting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!window.confirm('Delete this resource permanently?')) return;
+    setDeleting(true);
+    try {
+      await notesService.deleteNote(id);
+      navigate('/notes');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete');
+      setDeleting(false);
+    }
+  };
+
 
   const fetchNote = useCallback(async () => {
     setLoading(true);
@@ -75,21 +89,37 @@ const NoteDetailPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in slide-in-from-bottom duration-700 pb-20 px-4 md:px-0">
-      <button 
-        onClick={() => navigate('/notes')}
-        className="flex items-center text-slate-400 hover:text-kalvium transition-colors group font-bold uppercase tracking-widest text-[10px]"
-      >
-        <ChevronLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-        All Resources
-      </button>
+      <div className="flex items-center justify-between">
+        <button 
+          onClick={() => navigate('/notes')}
+          className="flex items-center text-slate-400 hover:text-kalvium transition-colors group font-bold uppercase tracking-widest text-[10px]"
+        >
+          <ChevronLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+          All Resources
+        </button>
+
+        {(user?.id || user?.userId) === note?.author?.id && (
+          <button 
+            onClick={handleDelete}
+            disabled={deleting}
+            className="flex items-center px-4 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all text-[10px] font-black uppercase tracking-widest gap-2"
+          >
+            <Trash2 className="w-4 h-4" />
+            Delete Resource
+          </button>
+        )}
+      </div>
+
 
       <div className="bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-sm">
         <div className="p-8 md:p-12">
           <div className="flex flex-wrap items-center gap-4 mb-8">
-            <div className="flex items-center space-x-2 px-4 py-1.5 bg-orange-50 text-orange-600 rounded-full border border-orange-100 shadow-sm animate-pulse">
+            {/* Commented out AI Badge as per request */}
+            {/* <div className="flex items-center space-x-2 px-4 py-1.5 bg-orange-50 text-orange-600 rounded-full border border-orange-100 shadow-sm animate-pulse">
                 <Sparkles size={14} />
                 <span className="text-[10px] font-black uppercase tracking-widest">Enhanced with AI</span>
-            </div>
+            </div> */}
+
             <span className="px-4 py-1.5 bg-red-50 text-kalvium rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border border-red-100 italic">
               {note.semester ? `Semester ${note.semester}` : 'General'}
             </span>
@@ -135,30 +165,40 @@ const NoteDetailPage = () => {
             ))}
           </div>
 
-          {note.fileUrl && (
-            <div className="mb-12 p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center justify-between group">
-              <div className="flex items-center">
-                 <div className="p-3 bg-kalvium/10 rounded-2xl mr-4 group-hover:bg-kalvium/20 transition-colors">
-                    <FileText className="w-6 h-6 text-kalvium" />
-                 </div>
-                 <div>
-                    <p className="text-sm font-bold text-slate-900 leading-none">Attached Resource</p>
-                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-black italic">Click to view/download material</p>
-                 </div>
+          {note.fileUrls && note.fileUrls.length > 0 && (
+            <div className="space-y-6 mb-12">
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-4 pl-1 italic">Resource Vault ({note.fileUrls.length})</h3>
+              <div className="grid gap-3">
+                {note.fileUrls.map((url, idx) => (
+                  <div key={idx} className="p-5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between group hover:border-kalvium/30 transition-all hover:bg-white hover:shadow-md">
+                    <div className="flex items-center">
+                      <div className="p-3 bg-kalvium/5 rounded-xl mr-4 group-hover:bg-kalvium/10 transition-colors">
+                          <FileText className="w-5 h-5 text-kalvium" />
+                      </div>
+                      <div>
+                          <p className="text-xs font-bold text-slate-800 leading-none">Shared Resource #{idx + 1}</p>
+                          <p className="text-[9px] text-slate-400 mt-1 uppercase tracking-widest font-bold">External Document / Tool</p>
+                      </div>
+                    </div>
+                    <a 
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-5 py-2.5 bg-white border border-slate-200 hover:border-kalvium hover:bg-kalvium hover:text-white text-slate-600 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center shadow-sm"
+                    >
+                      <Download className="w-3.5 h-3.5 mr-2" />
+                      Open Asset
+                    </a>
+                  </div>
+                ))}
               </div>
-              <a 
-                href={note.fileUrl.startsWith('http') ? note.fileUrl : `${import.meta.env.VITE_API_URL}${note.fileUrl.startsWith('/') ? '' : '/'}${note.fileUrl}`}
-                target="_blank"
-                rel="noreferrer"
-                className="px-6 py-3 bg-slate-900 hover:bg-black text-white text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-slate-900/10 flex items-center"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Open File
-              </a>
             </div>
           )}
+
+
           
-          <div className="bg-slate-50 p-1 rounded-[2rem]">
+          {/* Commented out AI Insights as per request */}
+          {/* <div className="bg-slate-50 p-1 rounded-[2rem]">
             <NoteAIInsights 
               noteId={id} 
               initialData={note.aiSummary ? {
@@ -168,7 +208,8 @@ const NoteDetailPage = () => {
                 lastAnalyzed: note.aiAnalyzedAt
               } : null} 
             />
-          </div>
+          </div> */}
+
         </div>
       </div>
 

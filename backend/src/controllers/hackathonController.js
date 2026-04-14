@@ -57,3 +57,30 @@ exports.hireApplicant = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.updateHackathonStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body;
+    if (!status) throw new AppError('Status is required', 400);
+
+    const data = await hackathonService.updateHackathonStatus(req.params.id, req.user.userId, req.user.role, status);
+    res.status(200).json({
+      success: true,
+      data
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteHackathon = async (req, res, next) => {
+  try {
+    await hackathonService.deleteHackathon(req.params.id, req.user.userId);
+    res.status(200).json({
+      success: true,
+      message: 'Opportunity deleted successfully'
+    });
+  } catch (err) {
+    next(err);
+  }
+};

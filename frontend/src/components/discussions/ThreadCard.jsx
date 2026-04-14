@@ -8,7 +8,8 @@ const ThreadCard = ({ thread, onDelete }) => {
   const { id, title, content, author, replyCount, createdAt, tags } = thread;
   const { user } = useAuth();
   const [deleting, setDeleting] = useState(false);
-  const isOwner = user?.userId === author?.id;
+  const isOwner = (user?.id || user?.userId) === author?.id;
+
 
   const handleDelete = async (e) => {
     e.preventDefault();

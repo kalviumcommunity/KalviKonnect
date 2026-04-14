@@ -42,9 +42,10 @@ exports.createPlacement = async (req, res, next) => {
     const placementData = {
       ...req.body,
       universityId: universityId,
-      fileUrl: req.file ? req.file.path : null
+      fileUrls: req.body.fileUrls || []
     };
     const data = await placementService.createPlacement(placementData, req.user.userId);
+
     res.status(201).json({ success: true, data });
   } catch (err) {
     next(err);

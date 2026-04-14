@@ -42,9 +42,10 @@ exports.createNote = async (req, res, next) => {
     const noteData = { 
       ...req.body, 
       universityId: universityId,
-      fileUrl: req.file ? req.file.path : null
+      fileUrls: req.body.fileUrls || []
     };
     const note = await noteService.createNote(noteData, req.user.userId);
+
     res.status(201).json({ success: true, data: note });
   } catch (err) {
     const fs = require('fs');

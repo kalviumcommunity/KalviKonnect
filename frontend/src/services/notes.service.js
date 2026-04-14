@@ -11,21 +11,10 @@ export const getNoteById = async (id) => {
 };
 
 export const createNote = async (noteData) => {
-  // Use FormData for file upload
-  const formData = new FormData();
-  Object.keys(noteData).forEach(key => {
-    if (key === 'tags') {
-      formData.append(key, JSON.stringify(noteData[key]));
-    } else {
-      formData.append(key, noteData[key]);
-    }
-  });
-
-  const response = await api.post('/notes', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  });
+  const response = await api.post('/notes', noteData);
   return response.data;
 };
+
 
 export const upvoteNote = async (id) => {
   const response = await api.post(`/upvotes`, { noteId: id });
@@ -33,6 +22,9 @@ export const upvoteNote = async (id) => {
 };
 
 export const analyzeNote = async (id) => {
-  const response = await api.post(`/notes/${id}/ai/analyze`);
-  return response.data;
+  // Commented out AI Analysis as per request
+  return { success: false, message: "AI Analysis is currently disabled." };
+  // const response = await api.post(`/notes/${id}/ai/analyze`);
+  // return response.data;
 };
+

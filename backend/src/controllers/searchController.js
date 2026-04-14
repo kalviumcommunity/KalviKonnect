@@ -8,17 +8,33 @@ const globalSearch = async (req, res, next) => {
     }
 
     const query = q.trim();
+    const universityId = req.user.universityId;
 
     // Parallel search across all major modules
     const [notes, placements, threads, hackathons] = await Promise.all([
       prisma.note.findMany({
         where: {
-          OR: [
-            { title: { contains: query, mode: 'insensitive' } },
-            { content: { contains: query, mode: 'insensitive' } }
-          ],
-          visibility: 'PUBLIC' // Or check university visibility
+          AND: [
+            {
+              OR: [
+                { title: { contains: query, mode: 'insensitive' } },
+                { content: { contains: query, mode: 'insensitive' } }
+              ]
+            },
+            {
+              OR: [
+                { visibility: 'PUBLIC' },
+                { 
+                  AND: [
+                    { visibility: 'UNIVERSITY_ONLY' },
+                    { universityId: universityId }
+                  ]
+                }
+              ]
+            }
+          ]
         },
+
         take: 5,
         select: { id: true, title: true, semester: true }
       }),
@@ -28,7 +44,9 @@ const globalSearch = async (req, res, next) => {
             { company: { contains: query, mode: 'insensitive' } },
             { role: { contains: query, mode: 'insensitive' } },
             { content: { contains: query, mode: 'insensitive' } }
-          ]
+          ],
+          // Only show placements from the same university for localized advice
+          author: { universityId: universityId }
         },
         take: 5,
         select: { id: true, company: true, role: true }
@@ -49,12 +67,13 @@ const globalSearch = async (req, res, next) => {
             { title: { contains: query, mode: 'insensitive' } },
             { description: { contains: query, mode: 'insensitive' } }
           ],
-          status: 'OPEN'
+          deadline: { gte: new Date() } // Only show active hackathons
         },
         take: 5,
         select: { id: true, title: true }
       })
     ]);
+
 
     // Unify results
     const results = [

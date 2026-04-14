@@ -12,6 +12,20 @@ const PlacementDetailPage = () => {
   const [placement, setPlacement] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!window.confirm('Delete this placement story?')) return;
+    setDeleting(true);
+    try {
+      await placementsService.deletePlacement(id);
+      navigate('/placements');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete');
+      setDeleting(false);
+    }
+  };
+
 
   const fetchPlacement = useCallback(async () => {
     setLoading(true);
@@ -55,13 +69,26 @@ const PlacementDetailPage = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700 pb-20">
-      <button 
-        onClick={() => navigate('/placements')}
-        className="flex items-center text-slate-400 hover:text-kalvium transition-colors group font-bold uppercase tracking-[0.2em] text-[10px]"
-      >
-        <ChevronLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-        Experience Vault
-      </button>
+      <div className="flex items-center justify-between">
+        <button 
+          onClick={() => navigate('/placements')}
+          className="flex items-center text-slate-400 hover:text-kalvium transition-colors group font-bold uppercase tracking-[0.2em] text-[10px]"
+        >
+          <ChevronLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+          Experience Vault
+        </button>
+
+        {(user?.userId || user?.id) === placement?.author?.id && (
+          <button 
+            onClick={handleDelete}
+            disabled={deleting}
+            className="flex items-center px-6 py-3 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition-all font-bold text-[10px] uppercase tracking-widest gap-2 border border-red-100"
+          >
+            DELETE STORY
+          </button>
+        )}
+      </div>
+
 
       <div className="grid lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-10">
@@ -84,14 +111,41 @@ const PlacementDetailPage = () => {
               </div>
             </div>
 
-            <div className="prose prose-slate max-w-none mb-10">
+            <div className="prose prose-slate max-w-none mb-10 overflow-hidden">
               <h3 className="text-2xl font-bold text-slate-900 mb-8 font-outfit">Interview Narrative</h3>
               <div className="text-slate-600 leading-relaxed text-lg whitespace-pre-wrap font-medium">
                 {placement.content}
               </div>
             </div>
+
+            {placement.fileUrls && placement.fileUrls.length > 0 && (
+              <div className="mt-12 pt-10 border-t border-slate-50">
+                <h4 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-6 pl-1">Supporting Assets ({placement.fileUrls.length})</h4>
+                <div className="grid gap-3">
+                  {placement.fileUrls.map((url, idx) => (
+                    <a 
+                      key={idx}
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:border-kalvium/30 hover:bg-white hover:shadow-md transition-all"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-kalvium/5 flex items-center justify-center text-kalvium group-hover:bg-kalvium group-hover:text-white transition-colors">
+                          <Download size={18} />
+                        </div>
+                        <span className="text-xs font-bold text-slate-700">Reference Asset #{idx + 1}</span>
+                      </div>
+                      <span className="text-[10px] font-black uppercase text-slate-300 group-hover:text-kalvium tracking-widest transition-colors">Direct Access</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
             
-            <div className="bg-slate-50 p-1 rounded-[2rem]">
+            {/* Commented out AI Insights as per request */}
+            {/* <div className="bg-slate-50 p-1 rounded-[2rem]">
                <PlacementAIInsights 
                 placementId={id} 
                 initialData={placement.aiAnalyzedAt ? {
@@ -101,7 +155,8 @@ const PlacementDetailPage = () => {
                   lastAnalyzed: placement.aiAnalyzedAt
                 } : null}
               />
-            </div>
+            </div> */}
+
           </div>
         </div>
 

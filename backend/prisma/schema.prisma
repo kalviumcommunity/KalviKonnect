@@ -102,7 +102,7 @@ model Note {
   title          String
   content        String      @db.Text
 
-  fileUrl        String?
+  fileUrls       String[]    @default([])
   semester       Int
   visibility     Visibility  @default(UNIVERSITY_ONLY)
   
@@ -139,7 +139,7 @@ model PlacementPost {
   company        String
   role           String
   content        String      @db.Text
-  fileUrl        String?
+  fileUrls       String[]    @default([])
 
   rounds         Json?       // Structured round details
 
@@ -196,6 +196,13 @@ model HackathonApplication {
   userId         String
   
   status         String      @default("PENDING") // PENDING, SELECTED, REJECTED
+
+  
+  // Registration Data
+  fullName       String
+  githubLink     String?
+  linkedinLink   String?
+  
   portfolioLink  String?
   resumeUrl      String?
   
@@ -204,6 +211,7 @@ model HackathonApplication {
 
   @@unique([userId, hackathonId])
 }
+
 
 model DiscussionThread {
   id             String      @id @default(uuid())

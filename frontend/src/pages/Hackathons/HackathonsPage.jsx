@@ -3,33 +3,43 @@ import { useAuth } from '../../hooks/useAuth';
 import { useHackathons } from '../../hooks/useHackathons';
 import { applyToHackathon } from '../../services/hackathons.service';
 import HackathonCard from '../../components/hackathons/HackathonCard';
+import HackathonApplyModal from '../../components/hackathons/HackathonApplyModal';
 import HackathonForm from '../../components/hackathons/HackathonForm';
+
 import ErrorBanner from '../../components/shared/ErrorBanner';
 import EmptyState from '../../components/shared/EmptyState';
 import { Trophy, Search, PlusCircle } from 'lucide-react';
+
 
 const HackathonsPage = () => {
   const { user } = useAuth();
   const { status, data, error, fetchHackathons } = useHackathons();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+  const [selectedHackathon, setSelectedHackathon] = useState(null);
 
   useEffect(() => {
     fetchHackathons();
   }, [fetchHackathons]);
 
-  const handleApply = async (id) => {
-    const portfolioLink = prompt("Please enter your portfolio/github link:");
-    if (!portfolioLink) return;
+  const handleApplyClick = (hackathon) => {
+    setSelectedHackathon(hackathon);
+    setIsApplyModalOpen(true);
+  };
+
+  const handleApplySubmit = async (applicationData) => {
     try {
-      const res = await applyToHackathon(id, portfolioLink);
+      const res = await applyToHackathon(selectedHackathon.id, applicationData);
       if (res.success) {
         alert("Application submitted successfully!");
         fetchHackathons();
       }
     } catch (err) {
       alert(err.response?.data?.message || "Failed to apply");
+      throw err; // Re-throw to show error in modal
     }
   };
+
 
   const renderContent = () => {
     if (status === 'loading') {
@@ -69,9 +79,12 @@ const HackathonsPage = () => {
           <HackathonCard 
             key={item.id} 
             hackathon={item} 
-            onApply={handleApply}
+            onApply={() => handleApplyClick(item)}
+            onDelete={() => fetchHackathons()}
           />
+
         ))}
+
       </div>
     );
   };
@@ -116,7 +129,15 @@ const HackathonsPage = () => {
       </div>
 
       {renderContent()}
+
+      <HackathonApplyModal 
+        isOpen={isApplyModalOpen}
+        onClose={() => setIsApplyModalOpen(false)}
+        onSubmit={handleApplySubmit}
+        hackathonTitle={selectedHackathon?.title}
+      />
     </div>
+
   );
 };
 

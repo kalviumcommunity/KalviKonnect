@@ -2,6 +2,7 @@ const prisma = require('../db');
 const AppError = require('../utils/AppError');
 const { generateResponse } = require("./aiService");
 const { buildPlacementStructurePrompt, parseAIJson } = require("../utils/promptBuilder");
+const { prepareMultimodalData } = require("../utils/aiUtils");
 
 exports.analyzePlacementWithAI = async (placementId) => {
   return await prisma.$withRetry(async () => {
@@ -12,6 +13,7 @@ exports.analyzePlacementWithAI = async (placementId) => {
         company: true, 
         role: true, 
         content: true,
+        fileUrls: true,
         aiRoundBreakdown: true,
         aiPrepTopics: true,
         aiPrepChecklist: true,
@@ -37,13 +39,22 @@ exports.analyzePlacementWithAI = async (placementId) => {
       };
     }
 
+    // Process first file if present
+    const { fileParts, extractedText } = await prepareMultimodalData(placement.fileUrls[0]);
+    
+    // Combine raw content with extracted text
+    const fullContent = extractedText 
+      ? `${placement.content}\n\n[FILE ATTACHMENT TEXT]:\n${extractedText}` 
+      : placement.content;
+
     const { systemMsg, userPrompt } = buildPlacementStructurePrompt(
-      placement.content,
+      fullContent,
       placement.company,
       placement.role
     );
 
-    const aiResult = await generateResponse(userPrompt, systemMsg);
+    const aiResult = await generateResponse(userPrompt, systemMsg, fileParts);
+
     if (!aiResult.success) return aiResult;
 
     const parsed = parseAIJson(aiResult.text);
@@ -70,14 +81,14 @@ exports.analyzePlacementWithAI = async (placementId) => {
 
 exports.createPlacement = async (data, authorId) => {
   return await prisma.$withRetry(async () => {
-    const { company, role, content, rounds, fileUrl } = data;
+    const { company, role, content, rounds, fileUrls } = data;
     return await prisma.placementPost.create({
       data: {
         company,
         role,
         content,
         rounds: rounds || [],
-        fileUrl: fileUrl || null,
+        fileUrls: fileUrls || [],
         author: { connect: { id: authorId } }
       }
     });
@@ -107,7 +118,7 @@ exports.getPlacements = async (query) => {
           company: true,
           role: true,
           content: true,
-          fileUrl: true,
+          fileUrls: true,
           upvoteCount: true,
           createdAt: true,
           author: { select: { id: true, name: true } }

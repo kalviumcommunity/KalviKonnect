@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import FeedTabs from '../../components/dashboard/FeedTabs';
+import { useNavigate } from 'react-router-dom';
 import PostCard from '../../components/dashboard/PostCard';
 import PostForm from '../../components/dashboard/PostForm';
 import SkeletonCard from '../../components/shared/SkeletonCard';
@@ -8,12 +7,13 @@ import ErrorBanner from '../../components/shared/ErrorBanner';
 import EmptyState from '../../components/shared/EmptyState';
 import { useAuth } from '../../hooks/useAuth';
 import { getPosts } from '../../services/post.service';
-import { Users, Calendar, BookOpen, Trophy, Megaphone, MessageSquare } from 'lucide-react';
+import { Users, Calendar, BookOpen } from 'lucide-react';
 
 const DashboardPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('COLLEGE');
+  const [activeTab] = useState('KALVIUM');
+
   const [status, setStatus] = useState('idle');
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(null);
@@ -40,105 +40,80 @@ const DashboardPage = () => {
   }, [fetchFeed]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000 pb-20 px-4">
       
-      {/* Main Content Area */}
-      <div className="lg:col-span-8 space-y-8">
+      {/* Header Hero Card */}
+      <div className="relative bg-white border border-slate-200 rounded-[2.5rem] p-10 overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-kalvium/5 transition-all group">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-kalvium/5 rounded-full -mr-40 -mt-40 blur-3xl opacity-50 group-hover:scale-110 transition-transform duration-1000"></div>
         
-        {/* Header Hero Card */}
-        <div className="relative bg-white border border-slate-200 rounded-3xl p-8 overflow-hidden shadow-sm">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-sky-50 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-          <div className="relative z-10">
-            <h1 className="text-3xl font-bold text-slate-900 font-outfit mb-4">
-              Hi {user?.name ? user.name.split(' ')[0] : 'Kalvian'} <span className="animate-bounce inline-block">👋</span>
-            </h1>
-            <div className="flex flex-wrap gap-4 text-sm text-slate-600">
-              <div className="flex items-center bg-sky-50/50 px-3 py-1.5 rounded-full border border-sky-100">
-                <Users className="w-4 h-4 mr-2 text-sky-600" />
-                <span>Squad 76</span>
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
+          <div className="space-y-8">
+            <div className="space-y-3">
+              <p className="text-kalvium text-[10px] font-black uppercase tracking-[0.4em] mb-1">Campus Ecosystem</p>
+              <h1 className="text-5xl md:text-6xl font-black text-slate-900 font-outfit tracking-tighter leading-[1.1]">
+                Hey {user?.name ? user.name.split(' ')[0] : 'Kalvian'}! <span className="inline-block hover:animate-wave origin-bottom-right">👋</span>
+              </h1>
+            </div>
+            
+            <div className="flex flex-wrap gap-4">
+              <div className="flex items-center bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 shadow-sm transition-all hover:bg-white hover:border-kalvium/20 group/tag">
+                <Users className="w-5 h-5 mr-3 text-kalvium group-hover:scale-110 transition-transform" />
+                <span className="text-sm font-bold text-slate-600 transition-colors group-hover:text-slate-900 font-outfit">Squad 76</span>
               </div>
-              <div className="flex items-center bg-sky-50/50 px-3 py-1.5 rounded-full border border-sky-100">
-                <Calendar className="w-4 h-4 mr-2 text-sky-600" />
-                <span>Class of 2028</span>
+              <div className="flex items-center bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 shadow-sm transition-all hover:bg-white hover:border-kalvium/20 group/tag">
+                <Calendar className="w-5 h-5 mr-3 text-kalvium group-hover:scale-110 transition-transform" />
+                <span className="text-sm font-bold text-slate-600 transition-colors group-hover:text-slate-900 font-outfit">Class of 2028</span>
               </div>
             </div>
-            <div className="mt-6 flex items-center space-x-2 text-slate-500">
+
+            <div className="flex items-center space-x-3 text-slate-400 pl-1">
               <BookOpen className="w-4 h-4" />
-              <span className="text-xs font-semibold uppercase tracking-wider">Computer Science Engineering</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] font-outfit">Computer Science Engineering</span>
             </div>
           </div>
           
-          <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden md:block">
-            <div className="w-24 h-24 bg-white rounded-2xl shadow-lg flex items-center justify-center border border-slate-100 p-2 transform rotate-6">
-              <img src="/logo.jpeg" alt="Kalvium" className="w-full h-full object-contain rounded-lg" />
+          <div className="shrink-0 hidden lg:block">
+            <div className="w-40 h-40 bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200 flex items-center justify-center border border-slate-100 p-6 transform rotate-6 hover:rotate-0 transition-all duration-700 scale-110">
+              <img src="/logo.jpeg" alt="Kalvium" className="w-full h-full object-contain rounded-xl" />
             </div>
-          </div>
-        </div>
-
-        {/* Feed Section */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-slate-900">Activity Feed</h2>
-            <FeedTabs activeTab={activeTab} onTabChange={setActiveTab} />
-          </div>
-          
-          <PostForm onPostCreated={fetchFeed} />
-
-          <div className="space-y-4">
-            {status === 'loading' ? (
-              [1, 2].map(i => <SkeletonCard key={i} />)
-            ) : status === 'error' ? (
-              <ErrorBanner message={error} onRetry={fetchFeed} />
-            ) : posts.length === 0 ? (
-              <EmptyState title="Quiet day" message="Nothing to show yet." />
-            ) : (
-              posts.map(post => <PostCard key={post.id} post={post} />)
-            )}
           </div>
         </div>
       </div>
 
-      {/* Right Sidebar - Apps Grid */}
-      <div className="lg:col-span-4 space-y-8">
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center">
-            My Kalvium Apps
-          </h3>
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { name: 'Livebooks', icon: BookOpen, color: 'text-purple-500', bgColor: 'bg-purple-50', path: '/notes' },
-              { name: 'Dojo', icon: Trophy, color: 'text-red-500', bgColor: 'bg-red-50', comingSoon: true },
-              { name: 'Mail', icon: Megaphone, color: 'text-blue-500', bgColor: 'bg-blue-50', comingSoon: true },
-              { name: 'Chat', icon: MessageSquare, color: 'text-orange-500', bgColor: 'bg-orange-50', comingSoon: true },
-              { name: 'Calendar', icon: Calendar, color: 'text-emerald-500', bgColor: 'bg-emerald-50', path: '/calendar' },
-              { name: 'Support', icon: Users, color: 'text-rose-500', bgColor: 'bg-rose-50', comingSoon: true },
-            ].map(app => (
-              <button 
-                key={app.name} 
-                onClick={() => app.path && navigate(app.path)}
-                disabled={app.comingSoon}
-                className={`flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-100 transition-all group relative overflow-hidden ${app.comingSoon ? 'opacity-60 cursor-not-allowed grayscale-[0.5]' : 'hover:border-kalvium/30 hover:bg-slate-50 cursor-pointer'}`}
-              >
-                {app.comingSoon && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white/20 backdrop-blur-[1px] z-10">
-                    <span className="text-[7px] font-black bg-slate-900 text-white px-1.5 py-0.5 rounded uppercase tracking-tighter rotate-12">Coming Soon</span>
-                  </div>
-                )}
-                <div className={`p-2.5 rounded-xl ${app.bgColor} group-hover:scale-110 transition-transform mb-2 ${app.color}`}>
-                  <app.icon className="w-6 h-6" />
-                </div>
-                <span className="text-[10px] font-bold text-slate-600 truncate w-full text-center">{app.name}</span>
-              </button>
-            ))}
+      {/* Post Form Area */}
+      <div className="space-y-4">
+        <PostForm onPostCreated={fetchFeed} />
+      </div>
+
+      {/* Feed Section */}
+      <div className="space-y-10">
+        <div className="flex items-center justify-between px-4">
+          <div className="flex items-center space-x-4">
+            <div className="w-2 h-8 bg-kalvium rounded-full shadow-lg shadow-kalvium/20"></div>
+            <h2 className="text-3xl font-black text-slate-900 font-outfit tracking-tight">Activity Feed</h2>
+          </div>
+          <div className="hidden sm:block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] bg-slate-50 px-5 py-2.5 rounded-full border border-slate-100">
+            Real-time Updates
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-          <h3 className="text-slate-900 font-bold mb-2">Grow with Kalvium</h3>
-          <p className="text-sm text-slate-600 mb-4">Complete your internship application today.</p>
-          <button className="w-full py-2.5 bg-kalvium text-white font-bold rounded-xl shadow-lg shadow-kalvium/20 hover:bg-red-600 transition-all">
-            Get Started
-          </button>
+        <div className="space-y-8">
+          {status === 'loading' ? (
+            [1, 2, 3].map(i => <SkeletonCard key={i} />)
+          ) : status === 'error' ? (
+            <div className="py-20">
+              <ErrorBanner message={error} onRetry={fetchFeed} />
+            </div>
+          ) : posts.length === 0 ? (
+            <div className="bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200 py-40 flex items-center justify-center group hover:bg-white hover:border-kalvium/20 transition-all duration-500">
+              <EmptyState title="Quiet day" message="The community is resting. Be the first to start a conversation!" />
+            </div>
+          ) : (
+            <div className="grid gap-8">
+              {posts.map(post => <PostCard key={post.id} post={post} onDelete={fetchFeed} />)}
+            </div>
+
+          )}
         </div>
       </div>
     </div>
