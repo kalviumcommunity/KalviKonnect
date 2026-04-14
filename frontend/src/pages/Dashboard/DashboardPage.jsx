@@ -58,11 +58,11 @@ const DashboardPage = () => {
             <div className="flex flex-wrap gap-4">
               <div className="flex items-center bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 shadow-sm transition-all hover:bg-white hover:border-kalvium/20 group/tag">
                 <Users className="w-5 h-5 mr-3 text-kalvium group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-bold text-slate-600 transition-colors group-hover:text-slate-900 font-outfit">Squad 76</span>
+                {/* <span className="text-sm font-bold text-slate-600 transition-colors group-hover:text-slate-900 font-outfit">Squad 76</span> */}
               </div>
               <div className="flex items-center bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 shadow-sm transition-all hover:bg-white hover:border-kalvium/20 group/tag">
                 <Calendar className="w-5 h-5 mr-3 text-kalvium group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-bold text-slate-600 transition-colors group-hover:text-slate-900 font-outfit">Class of 2028</span>
+                {/* <span className="text-sm font-bold text-slate-600 transition-colors group-hover:text-slate-900 font-outfit">Class of 2028</span> */}
               </div>
             </div>
 
